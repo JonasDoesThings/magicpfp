@@ -26,15 +26,10 @@ export default function HomePage() {
         return;
       }
 
-      try {
-        worker.current?.postMessage({
-          blobUrl: onLoadEvt.target.result as string,
-          brandColor: brandColorInput.current?.value ?? "#F1337F"
-        })
-      } catch (err) {
-        // todo: set gui error
-        console.error(err);
-      }
+      worker.current?.postMessage({
+        blobUrl: onLoadEvt.target.result as string,
+        brandColor: brandColorInput.current?.value ?? "#F1337F",
+      })
     }
 
     reader.readAsDataURL(file as Blob);
@@ -52,10 +47,18 @@ export default function HomePage() {
       setAppState(evt.data)
     };
 
+    const onErrorReceived = (evt: ErrorEvent) => {
+      setAppState({state: "ERROR", msg: (evt.error as Error).message})
+    }
+
     worker.current.addEventListener("message", onMessageReceived);
+    worker.current.addEventListener("error", onErrorReceived)
     setAppState({state: "READY"})
 
-    return () => worker.current?.removeEventListener('message', onMessageReceived);
+    return () => {
+      worker.current?.removeEventListener('message', onMessageReceived)
+      worker.current?.removeEventListener('error', onErrorReceived)
+    };
   }, [])
 
 

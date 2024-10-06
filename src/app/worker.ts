@@ -104,8 +104,7 @@ function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRende
 }
 
 
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-self.addEventListener('message', async (evt: MessageEvent<{blobUrl: string; brandColor: string}>) => {
+const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor: string}>) => {
   self.postMessage({
     state: "PROCESSING",
   } satisfies ApplicationState);
@@ -185,4 +184,15 @@ self.addEventListener('message', async (evt: MessageEvent<{blobUrl: string; bran
     variationsBlobs: await Promise.all(variations.map(async ({canvas: variationCanvas, label}) => ({label: label, blob: typeof variationCanvas === "string" ? variationCanvas: URL.createObjectURL(await variationCanvas.convertToBlob())}))),
     processingSeconds: (performance.now() - startTime) / 1000,
   } satisfies ApplicationState);
-});
+};
+
+self.addEventListener('message', (evt: MessageEvent) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  onMessageReceived(evt)
+    .catch((err) => {
+      self.postMessage({
+        state: "ERROR",
+        msg: (err as Error).message,
+      } satisfies ApplicationState);
+    });
+})
