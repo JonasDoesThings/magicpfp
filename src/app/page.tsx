@@ -3,13 +3,29 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import { type ApplicationState } from "~/lib/ApplicationState";
-import { Checkbox } from "~/components/ui/checkbox";
+import { imageVariations, type PFPGenerationSettings, pfpGenerationSettingsSchema } from "~/lib/imageVariations";
+import { Button } from "~/components/ui/button";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 
 export default function HomePage() {
-  const [appState, setAppState] = useState<ApplicationState>({state: "INITIALIZING"})
-  const brandColorInput = useRef<HTMLInputElement|null>(null);
-  const horizontalPaddingInput = useRef<HTMLInputElement|null>(null);
+  const [appState, setAppState] = useState<ApplicationState>({state: "INITIALIZING"});
   const worker = useRef<Worker|null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement|null>(null);
+  const generationSettingsForm = useForm<PFPGenerationSettings>({
+    resolver: zodResolver(pfpGenerationSettingsSchema),
+    defaultValues: {
+      backgroundScale: 0.9,
+      backgroundShape: "CIRCLE",
+      imageShape: "CIRCLE",
+      backgroundVerticalPosition: 1,
+      brandColor: "#F1337F",
+      horizontalPadding: 32,
+    }
+  })
 
   const uploadFile = (evt: ChangeEvent) => {
     const file = (evt.target as HTMLInputElement).files?.[0];
@@ -29,12 +45,37 @@ export default function HomePage() {
 
       worker.current?.postMessage({
         blobUrl: onLoadEvt.target.result as string,
-        brandColor: brandColorInput.current?.value ?? "#F1337F",
-        horizontalPadding: horizontalPaddingInput.current?.value ?? 32,
       })
     }
 
     reader.readAsDataURL(file as Blob);
+  }
+
+  const createVariations = async (generationSettings: PFPGenerationSettings, processedSubject: Blob) => {
+    if(!processedSubject) {
+      console.warn("no processedSubject")
+      return [];
+    }
+    console.time("generating variations")
+
+    const subjectImageBitmap = await createImageBitmap(processedSubject);
+
+    const variations = await Promise.all(imageVariations.map(async (variation) => ({
+      label: variation.label,
+      blob: await variation.generate(subjectImageBitmap, generationSettings)
+    })));
+    console.timeEnd("generating variations");
+    return variations;
+  }
+
+  const doRegenerate = async (values: PFPGenerationSettings, newAppState?: ApplicationState) => {
+    const appStateToUse = newAppState ?? appState;
+    if(appStateToUse.state !== "DONE" || appStateToUse.processedSubject == null) return;
+
+    setAppState({
+      ...appStateToUse,
+      processedVariations: await createVariations(values, appStateToUse.processedSubject),
+    })
   }
 
   useEffect(() => {
@@ -45,8 +86,16 @@ export default function HomePage() {
       });
     }
 
-    const onMessageReceived = (evt: MessageEvent<ApplicationState>) => {
-      setAppState(evt.data)
+    const onMessageReceived = async (evt: MessageEvent<ApplicationState>) => {
+      if(evt.data.state === "DONE") {
+        setAppState({
+          ...evt.data,
+        })
+        await generationSettingsForm.handleSubmit(data => doRegenerate(data, evt.data))();
+        return;
+      }
+
+      setAppState(evt.data);
     };
 
     const onErrorReceived = (evt: ErrorEvent) => {
@@ -73,20 +122,130 @@ export default function HomePage() {
       <div className="w-full max-w-sm flex flex-col gap-1.5">
         <Label>
           Picture
-          <Input type="file" onChange={uploadFile} />
+          <Input type="file" onChange={uploadFile} ref={fileInputRef} />
         </Label>
-        <Label>
-          Primary Color
-          <Input type={"color"} defaultValue={"#F1337F"} ref={brandColorInput} />
-        </Label>
-        <Label>
-          Horizontal Padding
-          <Input type={"number"} defaultValue={32} min={0} max={300} ref={horizontalPaddingInput} />
-        </Label>
-        <Label className={"flex flex-row gap-2 items-center mt-2"}>
-          <Checkbox onClick={(evt) => document.documentElement.style.setProperty("--variationsBorderRadius", evt.currentTarget.dataset.state !== "checked" ? "100%" : "0")} />
-          Preview Round Images
-        </Label>
+        <Form {...generationSettingsForm}>
+          <form onSubmit={generationSettingsForm.handleSubmit((data) => doRegenerate(data))} className={"space-y-1.5"}>
+            <FormField
+              control={generationSettingsForm.control}
+              name={"brandColor"}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Primary Color
+                  </FormLabel>
+                  <FormControl>
+                    <Input type={"color"} {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={generationSettingsForm.control}
+              name={"horizontalPadding"}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Horizontal Padding
+                  </FormLabel>
+                  <FormControl>
+                    <Input type={"number"} {...field} />
+                  </FormControl>
+                  <FormDescription />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className={"md:grid md:grid-cols-2 gap-2 w-full"}>
+              <FormField
+                control={generationSettingsForm.control}
+                name={"backgroundScale"}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Background Scale
+                    </FormLabel>
+                    <FormControl>
+                      <Input type={"number"} {...field} />
+                    </FormControl>
+                    <FormDescription />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={generationSettingsForm.control}
+                name={"backgroundVerticalPosition"}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Background Position
+                    </FormLabel>
+                    <FormControl>
+                      <Input type={"number"} {...field} />
+                    </FormControl>
+                    <FormDescription />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+              <div className={"md:grid md:grid-cols-2 gap-2 w-full"}>
+                <FormField
+                  control={generationSettingsForm.control}
+                  name={"backgroundShape"}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Background Shape
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a verified email to display" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="CIRCLE">Round</SelectItem>
+                          <SelectItem value="RECT">Rectangular</SelectItem>
+                          <SelectItem value="ROUNDEDRECT">Rounded Rect</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={generationSettingsForm.control}
+                  name={"imageShape"}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Image Shape
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a verified email to display" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="CIRCLE">Round</SelectItem>
+                          <SelectItem value="RECT">Rectangular</SelectItem>
+                          <SelectItem value="ROUNDEDRECT">Rounded Rect</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <Button type={"submit"} className={"w-full"}>Generate</Button>
+          </form>
+        </Form>
       </div>
       <hr className={"my-4 border w-full max-w-sm"} />
       <div>
@@ -98,23 +257,21 @@ export default function HomePage() {
           <div>
             <p className={"text-2xl font-bold text-left"}>Original</p>
             <div className={"flex flex-row flex-wrap justify-center gap-3"}>
-              {appState.variationsBlobs.slice(0, 2).map(({ blob, label }, i) => (
-                <div className={"flex flex-col text-center"} key={i}>
-                  <img src={blob} className={"h-48 w-auto"} alt={label} />
-                </div>
-              ))}
+              <img src={appState.originalImageDataUrl} className={"h-48 w-auto"} alt={"transparent subject"} />
+              <img src={URL.createObjectURL(appState.processedSubject)} className={"h-48 w-auto"} alt={"transparent subject"} />
             </div>
             <p className={"text-2xl font-bold text-left mt-4"}>Variations</p>
-            <div className={"flex flex-row flex-wrap justify-center gap-3"}>
-              {appState.variationsBlobs.slice(2).map(({ blob, label }, i) => (
-                <div className={"flex flex-col text-center items-center w-48"} key={i}>
-                  <img src={blob} className={"h-48 w-auto"} style={{ borderRadius: "var(--variationsBorderRadius)" }} alt={label} />
-                  <p className={"text-sm font-mono"}>{label}</p>
-                </div>
-              ))}
-            </div>
-            <p
-              className={"text-xs text-gray-600 font-mono"}>took {appState.processingSeconds.toLocaleString(undefined, { maximumFractionDigits: 2 })}s</p>
+            {appState.processedVariations ? (
+              <div className={"flex flex-row flex-wrap justify-center gap-3"}>
+                {appState.processedVariations?.map(({ label, blob }, i) => (
+                  <div className={"flex flex-col text-center items-center w-48"} key={i}>
+                    <img src={blob} className={"h-48 w-auto"} alt={label} />
+                    <p className={"text-sm font-mono"}>{label}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (<p>Generating Variations...</p>)}
+            <p className={"text-xs text-gray-600 font-mono"}>took {appState.processingSeconds.toLocaleString(undefined, { maximumFractionDigits: 2 })}s</p>
           </div>
         ) : null}
       </div>

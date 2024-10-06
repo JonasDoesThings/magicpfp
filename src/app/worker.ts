@@ -22,6 +22,7 @@ class ModelProcessorSingleton {
 
   static async getInstance() {
     if (this.instance === null) {
+      // Using experimental transformers.js v3 alpha with WebGPU Support (https://github.com/xenova/transformers.js/pull/545)
       const model = await AutoModel.from_pretrained('briaai/RMBG-1.4', {
         device: "webgpu",
         dtype: "fp32", // or fp16, TODO: what's the difference?
@@ -61,16 +62,9 @@ function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 48) {
 
   let top = 0, bottom = height - 1, left = 0, right = width - 1;
 
-  // Find top boundary
   while (top < height && Array.from({ length: width }, (_, x) => isTransparent(x, top)).every(Boolean)) top++;
-
-  // Find bottom boundary
   while (bottom > top && Array.from({ length: width }, (_, x) => isTransparent(x, bottom)).every(Boolean)) bottom--;
-
-  // Find left boundary
   while (left < width && Array.from({ length: height }, (_, y) => isTransparent(left, y)).every(Boolean)) left++;
-
-  // Find right boundary
   while (right > left && Array.from({ length: height }, (_, y) => isTransparent(right, y)).every(Boolean)) right--;
 
   const trimmedWidth = right - left + 1;
@@ -83,22 +77,6 @@ function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 48) {
   trimmedCanvas.getContext('2d')?.drawImage(canvas, left, top, trimmedWidth, trimmedHeight, 0, 0, trimmedWidth, trimmedHeight);
 
   return trimmedCanvas;
-}
-
-function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, subjectToPaint: OffscreenCanvas, paddingY = 50) {
-  const { width, height } = subjectToPaint;
-  const squareSize = drawingTargetCtx.canvas.width;
-
-  // Calculate the scale to fit the image within the square
-  const scale = Math.min((squareSize - (paddingY * 2)) / width, (squareSize) / height);
-  const newWidth = width * scale;
-  const newHeight = height * scale;
-
-  // Calculate offset to center the image in the square canvas
-  const xOffset = (squareSize - newWidth) / 2;
-
-  // Draw the image onto the square canvas, preserving aspect ratio and centering it
-  drawingTargetCtx.drawImage(subjectToPaint, 0, 0, width, height, xOffset, squareSize - newHeight, newWidth, newHeight);
 }
 
 
@@ -149,40 +127,11 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   ctx.putImageData(pixelData, 0, 0);
 
   const croppedSubject = trimOffscreenCanvas(canvas);
-
-  const variations: {label: string; canvas: OffscreenCanvas|string}[] = [
-    {label: "Original", canvas: evt.data.blobUrl},
-    {label: "Transparent Background", canvas: croppedSubject}
-  ];
-
-  const solidBg = new OffscreenCanvas(1024, 1024);
-  const solidBgCtx = solidBg.getContext("2d")!;
-  solidBgCtx.beginPath();
-  solidBgCtx.fillStyle = evt.data.brandColor;
-  solidBgCtx.rect(0, 0, 1024, 1024);
-  solidBgCtx.fill();
-  solidBgCtx.closePath();
-  drawImageToCanvasRespectingRatio(solidBgCtx, croppedSubject, evt.data.horizontalPadding)
-  variations.push({label: "Solid Primary Color", canvas: solidBg})
-
-  const gradientBg = new OffscreenCanvas(1024, 1024);
-  const gradientBgCtx = gradientBg.getContext("2d")!;
-  let gradient = gradientBgCtx.createLinearGradient(0, 0, 1024, 0);
-  gradient.addColorStop(0, tinycolor(evt.data.brandColor).lighten(10).toHexString());
-  gradient.addColorStop(0.5, evt.data.brandColor);
-  gradient.addColorStop(1, tinycolor(evt.data.brandColor).darken(10).toHexString());
-  solidBgCtx.beginPath();
-  gradientBgCtx.fillStyle = gradient;
-  gradientBgCtx.rect(0, 0, 1024, 1024);
-  gradientBgCtx.fill();
-  gradientBgCtx.closePath();
-  drawImageToCanvasRespectingRatio(gradientBgCtx, croppedSubject, evt.data.horizontalPadding)
-  variations.push({label: "Primary Color Gradient", canvas: gradientBg})
-
   // Send the output back to the main thread
   self.postMessage({
     state: "DONE",
-    variationsBlobs: await Promise.all(variations.map(async ({canvas: variationCanvas, label}) => ({label: label, blob: typeof variationCanvas === "string" ? variationCanvas: URL.createObjectURL(await variationCanvas.convertToBlob())}))),
+    originalImageDataUrl: evt.data.blobUrl,
+    processedSubject: await croppedSubject.convertToBlob(),
     processingSeconds: (performance.now() - startTime) / 1000,
   } satisfies ApplicationState);
 };
