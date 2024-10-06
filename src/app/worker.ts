@@ -4,17 +4,16 @@ import {
   RawImage,
   env,
   type Processor,
-  type PreTrainedModel, type Tensor
-} from "@huggingface/transformers";
-import tinycolor from "tinycolor2";
-import { type ApplicationState } from "~/lib/ApplicationState";
+  type PreTrainedModel, type Tensor,
+} from '@huggingface/transformers';
+import {type ApplicationState} from '~/lib/ApplicationState';
 
-if (!("gpu" in navigator)) {
-  throw new Error("WebGPU not supported")
+if (!('gpu' in navigator)) {
+  throw new Error('WebGPU not supported');
 }
 
 // Since we will download the model from the Hugging Face Hub, we can skip the local model check
-env.allowLocalModels = false
+env.allowLocalModels = false;
 
 // Use the Singleton pattern to enable lazy construction of the pipeline.
 class ModelProcessorSingleton {
@@ -24,8 +23,8 @@ class ModelProcessorSingleton {
     if (this.instance === null) {
       // Using experimental transformers.js v3 alpha with WebGPU Support (https://github.com/xenova/transformers.js/pull/545)
       const model = await AutoModel.from_pretrained('briaai/RMBG-1.4', {
-        device: "webgpu",
-        dtype: "fp32", // or fp16, TODO: what's the difference?
+        device: 'webgpu',
+        dtype: 'fp32', // or fp16, TODO: what's the difference?
       });
 
       const processor = await AutoProcessor.from_pretrained('briaai/RMBG-1.4', {
@@ -55,17 +54,17 @@ function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 48) {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Could not get 2D context.');
 
-  const { width, height } = canvas;
-  const { data } = ctx.getImageData(0, 0, width, height);
+  const {width, height} = canvas;
+  const {data} = ctx.getImageData(0, 0, width, height);
 
   const isTransparent = (x: number, y: number) => (data[(y * width + x) * 4 + 3] ?? -1) <= alphaThreshold;
 
   let top = 0, bottom = height - 1, left = 0, right = width - 1;
 
-  while (top < height && Array.from({ length: width }, (_, x) => isTransparent(x, top)).every(Boolean)) top++;
-  while (bottom > top && Array.from({ length: width }, (_, x) => isTransparent(x, bottom)).every(Boolean)) bottom--;
-  while (left < width && Array.from({ length: height }, (_, y) => isTransparent(left, y)).every(Boolean)) left++;
-  while (right > left && Array.from({ length: height }, (_, y) => isTransparent(right, y)).every(Boolean)) right--;
+  while (top < height && Array.from({length: width}, (_, x) => isTransparent(x, top)).every(Boolean)) top++;
+  while (bottom > top && Array.from({length: width}, (_, x) => isTransparent(x, bottom)).every(Boolean)) bottom--;
+  while (left < width && Array.from({length: height}, (_, y) => isTransparent(left, y)).every(Boolean)) left++;
+  while (right > left && Array.from({length: height}, (_, y) => isTransparent(right, y)).every(Boolean)) right--;
 
   const trimmedWidth = right - left + 1;
   const trimmedHeight = bottom - top + 1;
@@ -82,7 +81,7 @@ function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 48) {
 
 const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor: string; horizontalPadding: number}>) => {
   self.postMessage({
-    state: "PROCESSING",
+    state: 'PROCESSING',
   } satisfies ApplicationState);
   const startTime = performance.now();
 
@@ -94,18 +93,18 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   const image = await RawImage.fromURL(evt.data.blobUrl);
 
   // Preprocess image
-  console.time("processor")
+  console.time('processor');
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const {pixel_values} = await processor(image);
-  console.timeEnd("processor")
+  console.timeEnd('processor');
 
   // Predict alpha matte
-  console.time("model")
+  console.time('model');
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const {output}: {output: Tensor[]} = await model({input: pixel_values});
-  console.timeEnd("model")
+  console.timeEnd('model');
 
-  if(!output[0]) throw new Error("output was null")
+  if(!output[0]) throw new Error('output was null');
 
   // Resize mask back to original size
   const mask = await RawImage.fromTensor(output[0].mul(255).to('uint8')).resize(image.width, image.height);
@@ -113,7 +112,7 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   // Create new canvas
   const canvas = new OffscreenCanvas(image.width, image.height);
   const ctx = canvas.getContext('2d', {willReadFrequently: true});
-  if(!ctx) throw new Error("failed rendering")
+  if(!ctx) throw new Error('failed rendering');
 
   // Draw original image output to canvas
   ctx.drawImage(image.toCanvas() as CanvasImageSource, 0, 0);
@@ -129,7 +128,7 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   const croppedSubject = trimOffscreenCanvas(canvas);
   // Send the output back to the main thread
   self.postMessage({
-    state: "DONE",
+    state: 'DONE',
     originalImageDataUrl: evt.data.blobUrl,
     processedSubject: await croppedSubject.convertToBlob(),
     processingSeconds: (performance.now() - startTime) / 1000,
@@ -141,8 +140,8 @@ self.addEventListener('message', (evt: MessageEvent) => {
   onMessageReceived(evt)
     .catch((err) => {
       self.postMessage({
-        state: "ERROR",
+        state: 'ERROR',
         msg: (err as Error).message,
       } satisfies ApplicationState);
     });
-})
+});
