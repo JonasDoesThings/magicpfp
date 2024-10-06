@@ -107,9 +107,8 @@ export default function HomePage() {
             <p className={"text-2xl font-bold text-left mt-4"}>Variations</p>
             <div className={"flex flex-row flex-wrap justify-center gap-3"}>
               {appState.variationsBlobs.slice(2).map(({ blob, label }, i) => (
-                <div className={"flex flex-col text-center"} key={i}>
-                  <img src={blob} className={"h-48 w-auto"} style={{ borderRadius: "var(--variationsBorderRadius)" }}
-                       alt={label} />
+                <div className={"flex flex-col text-center items-center w-48"} key={i}>
+                  <img src={blob} className={"h-48 w-auto"} style={{ borderRadius: "var(--variationsBorderRadius)" }} alt={label} />
                   <p className={"text-sm font-mono"}>{label}</p>
                 </div>
               ))}

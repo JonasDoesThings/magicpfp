@@ -85,11 +85,9 @@ function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 48) {
   return trimmedCanvas;
 }
 
-function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, imageCanvas: OffscreenCanvas, paddingY = 50) {
-  const { width, height } = imageCanvas;
+function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, subjectToPaint: OffscreenCanvas, paddingY = 50) {
+  const { width, height } = subjectToPaint;
   const squareSize = drawingTargetCtx.canvas.width;
-  const ctx = imageCanvas.getContext('2d');
-  if (!ctx) throw new Error('Could not get 2D context.');
 
   // Calculate the scale to fit the image within the square
   const scale = Math.min((squareSize - (paddingY * 2)) / width, (squareSize) / height);
@@ -100,7 +98,7 @@ function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRende
   const xOffset = (squareSize - newWidth) / 2;
 
   // Draw the image onto the square canvas, preserving aspect ratio and centering it
-  drawingTargetCtx.drawImage(imageCanvas, 0, 0, width, height, xOffset, squareSize - newHeight, newWidth, newHeight);
+  drawingTargetCtx.drawImage(subjectToPaint, 0, 0, width, height, xOffset, squareSize - newHeight, newWidth, newHeight);
 }
 
 
@@ -136,7 +134,7 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
 
   // Create new canvas
   const canvas = new OffscreenCanvas(image.width, image.height);
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', {willReadFrequently: true});
   if(!ctx) throw new Error("failed rendering")
 
   // Draw original image output to canvas
@@ -160,8 +158,8 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   const solidBg = new OffscreenCanvas(1024, 1024);
   const solidBgCtx = solidBg.getContext("2d")!;
   solidBgCtx.beginPath();
-  solidBgCtx.rect(0, 0, 1024, 1024);
   solidBgCtx.fillStyle = evt.data.brandColor;
+  solidBgCtx.rect(0, 0, 1024, 1024);
   solidBgCtx.fill();
   solidBgCtx.closePath();
   drawImageToCanvasRespectingRatio(solidBgCtx, croppedSubject, evt.data.horizontalPadding)
@@ -169,12 +167,15 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
 
   const gradientBg = new OffscreenCanvas(1024, 1024);
   const gradientBgCtx = gradientBg.getContext("2d")!;
-  const gradient = gradientBgCtx.createLinearGradient(0, 0, 1024, 0);
+  let gradient = gradientBgCtx.createLinearGradient(0, 0, 1024, 0);
   gradient.addColorStop(0, tinycolor(evt.data.brandColor).lighten(10).toHexString());
   gradient.addColorStop(0.5, evt.data.brandColor);
   gradient.addColorStop(1, tinycolor(evt.data.brandColor).darken(10).toHexString());
+  solidBgCtx.beginPath();
   gradientBgCtx.fillStyle = gradient;
-  gradientBgCtx.fillRect(0, 0, 1024, 1024);
+  gradientBgCtx.rect(0, 0, 1024, 1024);
+  gradientBgCtx.fill();
+  gradientBgCtx.closePath();
   drawImageToCanvasRespectingRatio(gradientBgCtx, croppedSubject, evt.data.horizontalPadding)
   variations.push({label: "Primary Color Gradient", canvas: gradientBg})
 
