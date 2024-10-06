@@ -104,7 +104,7 @@ function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRende
 }
 
 
-const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor: string}>) => {
+const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor: string; horizontalPadding: number}>) => {
   self.postMessage({
     state: "PROCESSING",
   } satisfies ApplicationState);
@@ -164,7 +164,7 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   solidBgCtx.fillStyle = evt.data.brandColor;
   solidBgCtx.fill();
   solidBgCtx.closePath();
-  drawImageToCanvasRespectingRatio(solidBgCtx, croppedSubject, 0)
+  drawImageToCanvasRespectingRatio(solidBgCtx, croppedSubject, evt.data.horizontalPadding)
   variations.push({label: "Solid Primary Color", canvas: solidBg})
 
   const gradientBg = new OffscreenCanvas(1024, 1024);
@@ -175,7 +175,7 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   gradient.addColorStop(1, tinycolor(evt.data.brandColor).darken(10).toHexString());
   gradientBgCtx.fillStyle = gradient;
   gradientBgCtx.fillRect(0, 0, 1024, 1024);
-  drawImageToCanvasRespectingRatio(gradientBgCtx, croppedSubject, 0)
+  drawImageToCanvasRespectingRatio(gradientBgCtx, croppedSubject, evt.data.horizontalPadding)
   variations.push({label: "Primary Color Gradient", canvas: gradientBg})
 
   // Send the output back to the main thread

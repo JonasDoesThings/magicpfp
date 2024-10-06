@@ -8,6 +8,7 @@ import { Checkbox } from "~/components/ui/checkbox";
 export default function HomePage() {
   const [appState, setAppState] = useState<ApplicationState>({state: "INITIALIZING"})
   const brandColorInput = useRef<HTMLInputElement|null>(null);
+  const horizontalPaddingInput = useRef<HTMLInputElement|null>(null);
   const worker = useRef<Worker|null>(null);
 
   const uploadFile = (evt: ChangeEvent) => {
@@ -29,6 +30,7 @@ export default function HomePage() {
       worker.current?.postMessage({
         blobUrl: onLoadEvt.target.result as string,
         brandColor: brandColorInput.current?.value ?? "#F1337F",
+        horizontalPadding: horizontalPaddingInput.current?.value ?? 32,
       })
     }
 
@@ -76,6 +78,10 @@ export default function HomePage() {
         <Label>
           Primary Color
           <Input type={"color"} defaultValue={"#F1337F"} ref={brandColorInput} />
+        </Label>
+        <Label>
+          Horizontal Padding
+          <Input type={"number"} defaultValue={32} min={0} max={300} ref={horizontalPaddingInput} />
         </Label>
         <Label className={"flex flex-row gap-2 items-center mt-2"}>
           <Checkbox onClick={(evt) => document.documentElement.style.setProperty("--variationsBorderRadius", evt.currentTarget.dataset.state !== "checked" ? "100%" : "0")} />
