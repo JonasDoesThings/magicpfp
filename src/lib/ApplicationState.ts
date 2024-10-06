@@ -4,6 +4,3 @@ export type ApplicationState =
   |{state: "DONE", variationsBlobs: {label: string; blob: string}[], processingSeconds: number}
   |{state: "PROCESSING"}
   |{state: "ERROR", msg: string}
-
-export type WorkerRequest =
-  {}

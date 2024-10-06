@@ -4,8 +4,7 @@ import {
   RawImage,
   env,
   type Processor,
-  type PreTrainedModel,
-  pipeline, type Tensor
+  type PreTrainedModel, type Tensor
 } from "@huggingface/transformers";
 import tinycolor from "tinycolor2";
 import { type ApplicationState } from "~/lib/ApplicationState";
@@ -84,28 +83,6 @@ function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 48) {
   trimmedCanvas.getContext('2d')?.drawImage(canvas, left, top, trimmedWidth, trimmedHeight, 0, 0, trimmedWidth, trimmedHeight);
 
   return trimmedCanvas;
-}
-
-function cropToSquare(canvas: OffscreenCanvas): OffscreenCanvas {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Could not get 2D context.');
-
-  const { width, height } = canvas;
-  const size = Math.max(width, height); // The new size of the square canvas
-
-  // Create a square canvas
-  const squareCanvas = new OffscreenCanvas(size, size);
-  const squareCtx = squareCanvas.getContext('2d');
-  if (!squareCtx) throw new Error('Could not get 2D context for square canvas.');
-
-  // Calculate position to center the original image
-  const xOffset = (size - width) / 2;
-  const yOffset = (size - height) / 2;
-
-  // Draw the original canvas in the center of the square canvas
-  squareCtx.drawImage(canvas, xOffset, yOffset);
-
-  return squareCanvas;
 }
 
 function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, imageCanvas: OffscreenCanvas, paddingY = 50) {
