@@ -12,6 +12,8 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '~/c
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '~/components/ui/accordion';
 import {Checkbox} from '~/components/ui/checkbox';
 import {FileImage, Frame, PaintbrushVertical, ScanFace} from 'lucide-react';
+import ColorPicker from 'react-best-gradient-color-picker';
+import {Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger} from '~/components/ui/dialog';
 
 export default function HomePage() {
   const [appState, setAppState] = useState<ApplicationState>({state: 'INITIALIZING'});
@@ -26,8 +28,7 @@ export default function HomePage() {
       imageShape: 'CIRCLE',
       backgroundVerticalPosition: 1,
       brandColor: '#F1337F',
-      horizontalPadding: 32,
-      topPadding: 32,
+      subjectScale: 0.95,
       topMargin: 0,
       border: false,
       borderLayer: 'FOREGROUND',
@@ -146,12 +147,21 @@ export default function HomePage() {
                 control={generationSettingsForm.control}
                 name='brandColor'
                 render={({field}) => (
-                  <FormItem>
-                    <FormLabel>
-                      Primary Color
+                  <FormItem onBlur={generationSettingsForm.handleSubmit((data) => doRegenerate(data))}>
+                    <FormLabel className='block'>
+                      Background Color
                     </FormLabel>
                     <FormControl>
-                      <Input type='color' {...field} />
+                      <Dialog>
+                        <DialogTrigger className='w-full'>
+                          <div className='w-full h-8 rounded-full flex items-center justify-center font-semibold font-mono text-xs text-white' style={{background: field.value}}></div>
+                        </DialogTrigger>
+                        <DialogContent className='px-4 w-auto' withoutCloseButton>
+                          <DialogTitle className='sr-only'>Color Picker</DialogTitle>
+                          <ColorPicker value={field.value} onChange={field.onChange} className='w-full' hideEyeDrop />
+                          <DialogClose asChild><Button className='bg-accent'>Done</Button></DialogClose>
+                        </DialogContent>
+                      </Dialog>
                     </FormControl>
                   </FormItem>
                 )}
@@ -164,30 +174,14 @@ export default function HomePage() {
               <AccordionItem value='subject'>
                 <AccordionTrigger><span className='flex flex-row items-center gap-2 font-bold'><ScanFace className='stroke-accent' size={24} /> Subject</span></AccordionTrigger>
                 <AccordionContent>
-                  <div className='md:grid md:grid-cols-3 gap-2 w-full'>
+                  <div className='md:grid md:grid-cols-2 gap-2 w-full'>
                     <FormField
                       control={generationSettingsForm.control}
-                      name='horizontalPadding'
+                      name='subjectScale'
                       render={({field}) => (
                         <FormItem>
                           <FormLabel>
-                            Horizontal Padding
-                          </FormLabel>
-                          <FormControl>
-                            <Input type='number' {...field} />
-                          </FormControl>
-                          <FormDescription />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={generationSettingsForm.control}
-                      name='topPadding'
-                      render={({field}) => (
-                        <FormItem>
-                          <FormLabel>
-                            Top Padding
+                            Scale
                           </FormLabel>
                           <FormControl>
                             <Input type='number' {...field} />
@@ -402,6 +396,10 @@ export default function HomePage() {
             </Accordion>
           </form>
         </Form>
+        <p className='mt-2.5 text-sm'>
+          Powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
+          Made my <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>GitHub</a>
+        </p>
       </div>
       <div>
         {appState.state === 'ERROR' ? (

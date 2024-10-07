@@ -9,9 +9,8 @@ export const pfpGenerationSettingsSchema = z.object({
   imageShape: z.enum(['RECT', 'CIRCLE', 'ROUNDEDRECT']),
   backgroundVerticalPosition: z.coerce.number().min(0).max(2),
   backgroundScale: z.coerce.number().min(0).max(1),
-  topPadding: z.coerce.number().min(-64).max(250),
   topMargin: z.coerce.number().min(-1).max(1),
-  horizontalPadding: z.coerce.number().min(-64).max(250),
+  subjectScale: z.coerce.number().min(0).max(1.5),
   border: z.boolean(),
   borderLayer: z.enum(['BACKGROUND', 'FOREGROUND']),
   borderColor: z.string(),
@@ -30,9 +29,9 @@ export const imageVariations: {
       const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
       const ctx = canvas.getContext('2d')!;
       drawCanvasBackground(ctx, generationSettings, {
-        fillStyle: generationSettings.brandColor,
+        fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
       });
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.horizontalPadding, generationSettings.topPadding, generationSettings.topMargin);
+      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
 
       return finishCanvas(canvas, generationSettings);
     },
@@ -44,12 +43,13 @@ export const imageVariations: {
       const ctx = canvas.getContext('2d')!;
       const gradient = ctx.createLinearGradient(0, 0, 0, OUTPUT_IMAGE_SIZE);
       gradient.addColorStop(0, tinycolor(generationSettings.brandColor).lighten(32).toHexString());
-      gradient.addColorStop(0.5, generationSettings.brandColor);
+      gradient.addColorStop(0.5, tinycolor(generationSettings.brandColor).toHexString());
       gradient.addColorStop(1, tinycolor(generationSettings.brandColor).darken(24).toHexString());
       drawCanvasBackground(ctx, generationSettings, {
         fillStyle: gradient,
       });
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.horizontalPadding, generationSettings.topPadding, generationSettings.topMargin);
+
+      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
 
       return finishCanvas(canvas, generationSettings);
     },
@@ -65,12 +65,13 @@ export const imageVariations: {
       const ctx = canvas.getContext('2d')!;
       const gradient = ctx.createLinearGradient(0, 0, 0, OUTPUT_IMAGE_SIZE);
       gradient.addColorStop(0, tinycolor(generationSettings.brandColor).lighten(32).toHexString());
-      gradient.addColorStop(0.5, generationSettings.brandColor);
+      gradient.addColorStop(0.5, tinycolor(generationSettings.brandColor).toHexString());
       gradient.addColorStop(1, tinycolor(generationSettings.brandColor).darken(24).toHexString());
       drawCanvasBackground(ctx, generationSettings, {
         fillStyle: gradient,
       });
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.horizontalPadding, generationSettings.topPadding, generationSettings.topMargin);
+
+      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
 
       return finishCanvas(canvas, generationSettings);
     },
@@ -94,12 +95,12 @@ export const imageVariations: {
       );
       gradient.addColorStop(0, 'white');
       gradient.addColorStop(0.75, 'white');
-      gradient.addColorStop(0.75, generationSettings.brandColor);
-      gradient.addColorStop(1, generationSettings.brandColor);
+      gradient.addColorStop(0.75, tinycolor(generationSettings.brandColor).toHexString());
+      gradient.addColorStop(1, tinycolor(generationSettings.brandColor).toHexString());
       drawCanvasBackground(ctx, generationSettings, {
         fillStyle: gradient,
       });
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.horizontalPadding, generationSettings.topPadding, generationSettings.topMargin);
+      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
 
       return finishCanvas(canvas, generationSettings);
     },
@@ -110,6 +111,7 @@ export const imageVariations: {
       generationSettings.backgroundScale = 1;
       generationSettings.backgroundVerticalPosition = 1;
       generationSettings.border = false;
+      generationSettings.subjectScale = 0.9;
 
       const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
       const ctx = canvas.getContext('2d')!;
@@ -121,23 +123,83 @@ export const imageVariations: {
         (OUTPUT_IMAGE_SIZE / 2) * (generationSettings.backgroundVerticalPosition/generationSettings.backgroundScale),
         (OUTPUT_IMAGE_SIZE*generationSettings.backgroundScale/2),
       );
-      gradient.addColorStop(0, 'white');
-      gradient.addColorStop(0.25, 'white');
-      gradient.addColorStop(0.25, generationSettings.brandColor);
-      gradient.addColorStop(0.5, generationSettings.brandColor);
-      gradient.addColorStop(0.5, 'white');
-      gradient.addColorStop(0.75, 'white');
-      gradient.addColorStop(0.75, generationSettings.brandColor);
-      gradient.addColorStop(1, generationSettings.brandColor);
+      gradient.addColorStop(0, tinycolor(generationSettings.brandColor).toHexString());
+      gradient.addColorStop(0.2, tinycolor(generationSettings.brandColor).toHexString());
+      gradient.addColorStop(0.2, 'white');
+      gradient.addColorStop(0.4, 'white');
+      gradient.addColorStop(0.4, tinycolor(generationSettings.brandColor).toHexString());
+      gradient.addColorStop(0.6, tinycolor(generationSettings.brandColor).toHexString());
+      gradient.addColorStop(0.6, 'white');
+      gradient.addColorStop(0.8, 'white');
+      gradient.addColorStop(0.8, tinycolor(generationSettings.brandColor).toHexString());
+      gradient.addColorStop(1, tinycolor(generationSettings.brandColor).toHexString());
       drawCanvasBackground(ctx, generationSettings, {
         fillStyle: gradient,
       });
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.horizontalPadding, generationSettings.topPadding, generationSettings.topMargin);
+      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
 
       return finishCanvas(canvas, generationSettings);
     },
   },
 ];
+
+function cssGradientToCanvasGradient(ctx: OffscreenCanvasRenderingContext2D, gradientStr: string, width = OUTPUT_IMAGE_SIZE, height = OUTPUT_IMAGE_SIZE) {
+  // Extract the gradient type and the rest of the gradient string
+  const gradientTypeMatch = /(linear|radial)-gradient\((.*)\)/.exec(gradientStr);
+  if (!gradientTypeMatch) {
+    return gradientStr;
+  }
+
+  const gradientType = gradientTypeMatch[1]; // 'linear' or 'radial'
+  let gradientParams = gradientTypeMatch[2]!.split(/,(?![^(]*\))/); // Split by commas but ignore those inside rgba()
+
+  let canvasGradient: CanvasGradient;
+
+  // Handle linear gradient with angle
+  if (gradientType === 'linear') {
+    let angle = 0;
+    const angleMatch = /(\d+)deg/.exec((gradientParams[0]!));
+
+    // Check if an angle is provided
+    if (angleMatch) {
+      angle = parseFloat(angleMatch[1]!);
+      gradientParams = gradientParams.slice(1); // Remove angle from params
+    }
+
+    // Convert the angle to coordinates for `createLinearGradient`
+    const radians = (angle * Math.PI) / 180;
+    const x1 = 0.5 * (1 + Math.cos(radians)) * width;
+    const y1 = 0.5 * (1 + Math.sin(radians)) * height;
+    const x0 = width - x1;
+    const y0 = height - y1;
+
+    canvasGradient = ctx.createLinearGradient(x0, y0, x1, y1);
+
+  } else if (gradientType === 'radial') {
+    // Assuming a simple radial gradient centered in the canvas
+    const radius = Math.min(width, height) / 2;
+    canvasGradient = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, radius);
+  } else {
+    throw new Error('Unsupported gradient type');
+  }
+
+  // Parse color stops and add them to the gradient
+  gradientParams.forEach((param) => {
+    const colorStopMatch = /(rgba?\([^)]+\))\s*(\d+)%/i.exec(param);
+    if (colorStopMatch) {
+      const color = colorStopMatch[1]!.trim();
+      const stop = parseFloat(colorStopMatch[2]!) / 100;
+      canvasGradient.addColorStop(stop, color);
+    } else {
+      console.warn('Invalid color stop:', param);
+    }
+  });
+
+  return canvasGradient;
+}
+
+
+
 
 function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings, backgroundSettings: {fillStyle: CanvasFillStrokeStyles['fillStyle']}) {
   ctx.beginPath();
@@ -220,11 +282,12 @@ function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSettings: 
   ctx.stroke();
 }
 
-function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, subjectToPaint: ImageBitmap, paddingY: number, paddingTop: number, topMargin: number) {
+function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, subjectToPaint: ImageBitmap, subjectScale: number, topMargin: number) {
   const {width, height} = subjectToPaint;
+
   const squareSize = drawingTargetCtx.canvas.width;
 
-  const scale = Math.min((squareSize - (paddingY * 2)) / width, (squareSize - paddingTop) / height);
+  const scale = Math.min(squareSize / width, squareSize / height) * subjectScale;
   const newWidth = width * scale;
   const newHeight = height * scale;
 
