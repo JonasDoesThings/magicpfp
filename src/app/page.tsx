@@ -33,7 +33,7 @@ export default function HomePage() {
       border: false,
       borderLayer: 'FOREGROUND',
       borderColor: 'black',
-      borderThickness: 48,
+      borderThickness: 40,
     },
   });
   const isBorderEnabled = generationSettingsForm.watch('border');
@@ -181,7 +181,7 @@ export default function HomePage() {
                       render={({field}) => (
                         <FormItem>
                           <FormLabel>
-                            Scale
+                            Scale (%)
                           </FormLabel>
                           <FormControl>
                             <Input type='number' {...field} />
@@ -220,7 +220,7 @@ export default function HomePage() {
                       render={({field}) => (
                         <FormItem>
                           <FormLabel>
-                            Background Scale
+                            Background Scale (%)
                           </FormLabel>
                           <FormControl>
                             <Input type='number' {...field} />
@@ -335,7 +335,7 @@ export default function HomePage() {
                               </FormControl>
                               <SelectContent>
                                 <SelectItem value='FOREGROUND'>Over Subject</SelectItem>
-                                <SelectItem value='BACKGROUND'>Background</SelectItem>
+                                <SelectItem value='BACKGROUND'>Behind Subject</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormDescription />
@@ -366,7 +366,7 @@ export default function HomePage() {
                           render={({field}) => (
                             <FormItem>
                               <FormLabel>
-                                Border Thickness
+                                Border Thickness (px)
                               </FormLabel>
                               <FormControl>
                                 <Input type='number' {...field} />
