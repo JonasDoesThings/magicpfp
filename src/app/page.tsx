@@ -11,7 +11,7 @@ import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, Form
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '~/components/ui/select';
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '~/components/ui/accordion';
 import {Checkbox} from '~/components/ui/checkbox';
-import {FileImage, Frame, PaintbrushVertical, ScanFace} from 'lucide-react';
+import {Frame, PaintbrushVertical, ScanFace} from 'lucide-react';
 import ColorPicker from 'react-best-gradient-color-picker';
 import {Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger} from '~/components/ui/dialog';
 
@@ -25,7 +25,7 @@ export default function HomePage() {
     defaultValues: {
       backgroundScale: 1,
       backgroundShape: 'CIRCLE',
-      imageShape: 'CIRCLE',
+      useBackgroundShapeAsImageMask: true,
       backgroundVerticalPosition: 1,
       brandColor: '#F1337F',
       subjectScale: 0.95,
@@ -274,6 +274,25 @@ export default function HomePage() {
                       )}
                     />
                   </div>
+                  <FormField
+                    control={generationSettingsForm.control}
+                    name='useBackgroundShapeAsImageMask'
+                    render={({field}) => (
+                      <FormItem className='mt-1'>
+                        <FormLabel className='flex flex-row items-center space-y-0 gap-1.5'>
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          Use Background Shape as Image Shape
+                        </FormLabel>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value='border'>
@@ -360,37 +379,6 @@ export default function HomePage() {
                       </div>
                     </>
                   ) : null}
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value='image'>
-                <AccordionTrigger><span className='flex flex-row items-center gap-2 font-bold'><FileImage className='stroke-accent' size={24} /> Image</span></AccordionTrigger>
-                <AccordionContent>
-                  <FormField
-                    control={generationSettingsForm.control}
-                    name='imageShape'
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>
-                          Image Shape
-                        </FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value='CIRCLE'>Round</SelectItem>
-                            <SelectItem value='RECT'>Rectangular</SelectItem>
-                            <SelectItem value='ROUNDEDRECT'>Rounded Rect</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormDescription />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

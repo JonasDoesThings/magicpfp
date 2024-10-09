@@ -6,7 +6,7 @@ export const OUTPUT_IMAGE_SIZE = 1024;
 export const pfpGenerationSettingsSchema = z.object({
   brandColor: z.string(),
   backgroundShape: z.enum(['RECT', 'CIRCLE', 'ROUNDEDRECT']),
-  imageShape: z.enum(['RECT', 'CIRCLE', 'ROUNDEDRECT']),
+  useBackgroundShapeAsImageMask: z.boolean(),
   backgroundVerticalPosition: z.coerce.number().min(0).max(2),
   backgroundScale: z.coerce.number().min(0).max(1),
   topMargin: z.coerce.number().min(-1).max(1),
@@ -305,18 +305,20 @@ async function finishCanvas(canvas: OffscreenCanvas, generationSettings: PFPGene
     drawBorder(ctx, generationSettings);
   }
 
-  if(generationSettings.imageShape === 'CIRCLE') {
-    ctx.globalCompositeOperation = 'destination-in';
-    ctx.beginPath();
-    ctx.arc(OUTPUT_IMAGE_SIZE / 2, OUTPUT_IMAGE_SIZE / 2, OUTPUT_IMAGE_SIZE / 2, 0, Math.PI*2, true);
-    ctx.closePath();
-    ctx.fill();
-  } else if(generationSettings.imageShape === 'ROUNDEDRECT') {
-    ctx.globalCompositeOperation = 'destination-in';
-    ctx.beginPath();
-    ctx.roundRect(0, 0, OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE, 72);
-    ctx.closePath();
-    ctx.fill();
+  if(generationSettings.useBackgroundShapeAsImageMask) {
+    if(generationSettings.backgroundShape === 'CIRCLE') {
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.beginPath();
+      ctx.arc(OUTPUT_IMAGE_SIZE / 2, OUTPUT_IMAGE_SIZE / 2, OUTPUT_IMAGE_SIZE / 2, 0, Math.PI*2, true);
+      ctx.closePath();
+      ctx.fill();
+    } else if(generationSettings.backgroundShape === 'ROUNDEDRECT') {
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.beginPath();
+      ctx.roundRect(0, 0, OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE, 72);
+      ctx.closePath();
+      ctx.fill();
+    }
   }
 
   return URL.createObjectURL(await canvas.convertToBlob());
