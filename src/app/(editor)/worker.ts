@@ -6,7 +6,7 @@ import {
   type Processor,
   type PreTrainedModel, type Tensor,
 } from '@huggingface/transformers';
-import {type ApplicationState} from '~/lib/ApplicationState';
+import {type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
 
 if (!('gpu' in navigator)) {
   throw new Error('WebGPU not supported');
@@ -78,11 +78,7 @@ function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 48) {
   return trimmedCanvas;
 }
 
-
 const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor: string; horizontalPadding: number}>) => {
-  self.postMessage({
-    state: 'PROCESSING',
-  } satisfies ApplicationState);
   const startTime = performance.now();
 
   // Retrieve the classification pipeline. When called for the first time,
@@ -129,10 +125,11 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   // Send the output back to the main thread
   self.postMessage({
     state: 'DONE',
-    originalImageDataUrl: evt.data.blobUrl,
-    processedSubject: await croppedSubject.convertToBlob(),
+    //originalImageDataUrl: evt.data.blobUrl,
+    //processedSubject: await croppedSubject.convertToBlob(),
     processingSeconds: (performance.now() - startTime) / 1000,
-  } satisfies ApplicationState);
+    processedSubjectImage: await croppedSubject.convertToBlob(),
+  } satisfies RemoveImgBackgroundWorkerResponse);
 };
 
 self.addEventListener('message', (evt: MessageEvent) => {
@@ -141,7 +138,7 @@ self.addEventListener('message', (evt: MessageEvent) => {
     .catch((err) => {
       self.postMessage({
         state: 'ERROR',
-        msg: (err as Error).message,
-      } satisfies ApplicationState);
+        errorMessage: (err as Error).message,
+      } satisfies RemoveImgBackgroundWorkerResponse);
     });
 });

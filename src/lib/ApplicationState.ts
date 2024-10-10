@@ -1,6 +1,10 @@
-export type ApplicationState =
+export type EditorState =
   {state: 'INITIALIZING'}
   |{state: 'READY'}
-  |{state: 'DONE'; processedSubject: Blob; originalImageDataUrl: string; processedVariations?: {label: string; blob: string}[]; processingSeconds: number; variationGenerationSeconds?: number}
+  |{state: 'DONE'; processedSubjectImage: Blob; processingSeconds: number}
   |{state: 'PROCESSING'}
-  |{state: 'ERROR'; msg: string}
+  |{state: 'ERROR'; errorMessage: string}
+
+export type RemoveImgBackgroundWorkerResponse =
+  {state: 'DONE'; processedSubjectImage: Blob; processingSeconds: number}
+  |{state: 'ERROR'; errorMessage: string}

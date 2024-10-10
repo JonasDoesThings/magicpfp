@@ -1,5 +1,5 @@
-import {z} from 'zod';
-import tinycolor from 'tinycolor2';
+import {z, ZodBoolean, ZodEnum, ZodNumber} from 'zod';
+import {parseAsBoolean, parseAsFloat, parseAsInteger, parseAsString, parseAsStringEnum} from 'nuqs';
 
 export const OUTPUT_IMAGE_SIZE = 1024;
 
@@ -19,131 +19,52 @@ export const pfpGenerationSettingsSchema = z.object({
 
 export type PFPGenerationSettings = z.infer<typeof pfpGenerationSettingsSchema>
 
-export const imageVariations: {
-  label: string;
-  generate: (subject: ImageBitmap, generationSettings: PFPGenerationSettings) => Promise<string>;
-}[] = [
-  {
-    label: 'Solid Background',
-    generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
-      const ctx = canvas.getContext('2d')!;
-      drawCanvasBackground(ctx, generationSettings, {
-        fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
-      });
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
+export async function generateOutputImage(subject: ImageBitmap, generationSettings: PFPGenerationSettings) {
+  const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
+  const ctx = canvas.getContext('2d')!;
+  drawCanvasBackground(ctx, generationSettings, {
+    fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
+  });
+  drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
 
-      return finishCanvas(canvas, generationSettings);
-    },
-  },
-  {
-    label: 'Gradient Background',
-    generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
-      const ctx = canvas.getContext('2d')!;
-      const gradient = ctx.createLinearGradient(0, 0, 0, OUTPUT_IMAGE_SIZE);
-      gradient.addColorStop(0, tinycolor(generationSettings.brandColor).lighten(32).toHexString());
-      gradient.addColorStop(0.5, tinycolor(generationSettings.brandColor).toHexString());
-      gradient.addColorStop(1, tinycolor(generationSettings.brandColor).darken(24).toHexString());
-      drawCanvasBackground(ctx, generationSettings, {
-        fillStyle: gradient,
-      });
+  return finishCanvas(canvas, generationSettings);
+}
 
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
+export const defaultGenerationSettings: PFPGenerationSettings = {
+  backgroundScale: 1,
+  backgroundShape: 'CIRCLE',
+  useBackgroundShapeAsImageMask: true,
+  backgroundVerticalPosition: 1,
+  brandColor: '#F1337F',
+  subjectScale: 0.95,
+  topMargin: 0,
+  border: false,
+  borderLayer: 'FOREGROUND',
+  borderColor: 'black',
+  borderThickness: 40,
+};
 
-      return finishCanvas(canvas, generationSettings);
-    },
-  },
-  {
-    label: 'Gradient Background',
-    generate: async (subject: ImageBitmap, generationSettings) => {
-      generationSettings.backgroundScale = 0.75;
-      generationSettings.backgroundVerticalPosition = 0.85;
-      generationSettings.border = false;
+export const pfpGenerationSettingsUrlParsingSchema = Object.fromEntries(Object.entries(pfpGenerationSettingsSchema.shape).map(([key, valueShape]) => ([key, ((() => {
+  const defaultValue = defaultGenerationSettings[key as keyof PFPGenerationSettings];
 
-      const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
-      const ctx = canvas.getContext('2d')!;
-      const gradient = ctx.createLinearGradient(0, 0, 0, OUTPUT_IMAGE_SIZE);
-      gradient.addColorStop(0, tinycolor(generationSettings.brandColor).lighten(32).toHexString());
-      gradient.addColorStop(0.5, tinycolor(generationSettings.brandColor).toHexString());
-      gradient.addColorStop(1, tinycolor(generationSettings.brandColor).darken(24).toHexString());
-      drawCanvasBackground(ctx, generationSettings, {
-        fillStyle: gradient,
-      });
+  if(valueShape instanceof ZodNumber) {
+    if(valueShape.isInt) {
+      return parseAsInteger.withDefault(defaultValue as number);
+    }
+    return parseAsFloat.withDefault(defaultValue as number);
+  }
+  if(valueShape instanceof ZodBoolean) {
+    return parseAsBoolean.withDefault(defaultValue as boolean);
+  }
+  if(valueShape instanceof ZodEnum) {
+    return parseAsStringEnum(Object.values(valueShape.Values) as string[]).withDefault(defaultValue as string);
+  }
 
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
+  return parseAsString.withDefault(defaultValue as string);
+})())])));
 
-      return finishCanvas(canvas, generationSettings);
-    },
-  },
-  {
-    label: 'Hollow Ring',
-    generate: async (subject: ImageBitmap, generationSettings) => {
-      generationSettings.backgroundScale = 1;
-      generationSettings.backgroundVerticalPosition = 1;
-      generationSettings.border = false;
-
-      const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
-      const ctx = canvas.getContext('2d')!;
-      const gradient = ctx.createRadialGradient(
-        (OUTPUT_IMAGE_SIZE / 2),
-        (OUTPUT_IMAGE_SIZE / 2) * (generationSettings.backgroundVerticalPosition/generationSettings.backgroundScale),
-        0,
-        (OUTPUT_IMAGE_SIZE / 2),
-        (OUTPUT_IMAGE_SIZE / 2) * (generationSettings.backgroundVerticalPosition/generationSettings.backgroundScale),
-        (OUTPUT_IMAGE_SIZE*generationSettings.backgroundScale/2),
-      );
-      gradient.addColorStop(0, 'white');
-      gradient.addColorStop(0.75, 'white');
-      gradient.addColorStop(0.75, tinycolor(generationSettings.brandColor).toHexString());
-      gradient.addColorStop(1, tinycolor(generationSettings.brandColor).toHexString());
-      drawCanvasBackground(ctx, generationSettings, {
-        fillStyle: gradient,
-      });
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
-
-      return finishCanvas(canvas, generationSettings);
-    },
-  },
-  {
-    label: 'Hollow Rings',
-    generate: async (subject: ImageBitmap, generationSettings) => {
-      generationSettings.backgroundScale = 1;
-      generationSettings.backgroundVerticalPosition = 1;
-      generationSettings.border = false;
-      generationSettings.subjectScale = 0.9;
-
-      const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
-      const ctx = canvas.getContext('2d')!;
-      const gradient = ctx.createRadialGradient(
-        (OUTPUT_IMAGE_SIZE / 2),
-        (OUTPUT_IMAGE_SIZE / 2) * (generationSettings.backgroundVerticalPosition/generationSettings.backgroundScale),
-        0,
-        (OUTPUT_IMAGE_SIZE / 2),
-        (OUTPUT_IMAGE_SIZE / 2) * (generationSettings.backgroundVerticalPosition/generationSettings.backgroundScale),
-        (OUTPUT_IMAGE_SIZE*generationSettings.backgroundScale/2),
-      );
-      gradient.addColorStop(0, tinycolor(generationSettings.brandColor).toHexString());
-      gradient.addColorStop(0.2, tinycolor(generationSettings.brandColor).toHexString());
-      gradient.addColorStop(0.2, 'white');
-      gradient.addColorStop(0.4, 'white');
-      gradient.addColorStop(0.4, tinycolor(generationSettings.brandColor).toHexString());
-      gradient.addColorStop(0.6, tinycolor(generationSettings.brandColor).toHexString());
-      gradient.addColorStop(0.6, 'white');
-      gradient.addColorStop(0.8, 'white');
-      gradient.addColorStop(0.8, tinycolor(generationSettings.brandColor).toHexString());
-      gradient.addColorStop(1, tinycolor(generationSettings.brandColor).toHexString());
-      drawCanvasBackground(ctx, generationSettings, {
-        fillStyle: gradient,
-      });
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
-
-      return finishCanvas(canvas, generationSettings);
-    },
-  },
-];
-
-function cssGradientToCanvasGradient(ctx: OffscreenCanvasRenderingContext2D, gradientStr: string, width = OUTPUT_IMAGE_SIZE, height = OUTPUT_IMAGE_SIZE) {
+export function cssGradientToCanvasGradient(ctx: OffscreenCanvasRenderingContext2D, gradientStr: string, width = OUTPUT_IMAGE_SIZE, height = OUTPUT_IMAGE_SIZE) {
+  gradientStr = gradientStr.replace(/\s\s+/g, ' ');
   // Extract the gradient type and the rest of the gradient string
   const gradientTypeMatch = /(linear|radial)-gradient\((.*)\)/.exec(gradientStr);
   if (!gradientTypeMatch) {
@@ -167,13 +88,13 @@ function cssGradientToCanvasGradient(ctx: OffscreenCanvasRenderingContext2D, gra
     }
 
     // Convert the angle to coordinates for `createLinearGradient`
-    const radians = (angle * Math.PI) / 180;
-    const x1 = 0.5 * (1 + Math.cos(radians)) * width;
-    const y1 = 0.5 * (1 + Math.sin(radians)) * height;
-    const x0 = width - x1;
-    const y0 = height - y1;
+    const radians = ((90 - angle) * Math.PI) / 180;
+    const x2 = 0.5 * (1 + Math.cos(radians)) * width;
+    const y2 = 0.5 * (1 + Math.sin(radians)) * height;
+    const x1 = width - x2;
+    const y1 = height - y2;
 
-    canvasGradient = ctx.createLinearGradient(x0, y0, x1, y1);
+    canvasGradient = ctx.createLinearGradient(x1, y1, x2, y2);
 
   } else if (gradientType === 'radial') {
     // Assuming a simple radial gradient centered in the canvas
@@ -191,6 +112,7 @@ function cssGradientToCanvasGradient(ctx: OffscreenCanvasRenderingContext2D, gra
       const stop = parseFloat(colorStopMatch[2]!) / 100;
       canvasGradient.addColorStop(stop, color);
     } else {
+      console.log(gradientParams);
       console.warn('Invalid color stop:', param);
     }
   });
@@ -198,10 +120,7 @@ function cssGradientToCanvasGradient(ctx: OffscreenCanvasRenderingContext2D, gra
   return canvasGradient;
 }
 
-
-
-
-function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings, backgroundSettings: {fillStyle: CanvasFillStrokeStyles['fillStyle']}) {
+export function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings, backgroundSettings: {fillStyle: CanvasFillStrokeStyles['fillStyle']}) {
   ctx.beginPath();
   ctx.fillStyle = backgroundSettings.fillStyle;
 
@@ -237,7 +156,7 @@ function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, generation
   }
 }
 
-function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings) {
+export function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings) {
   if(!generationSettings.border) return;
   ctx.beginPath();
   ctx.lineWidth = generationSettings.borderThickness;
@@ -282,7 +201,7 @@ function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSettings: 
   ctx.stroke();
 }
 
-function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, subjectToPaint: ImageBitmap, subjectScale: number, topMargin: number) {
+export function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, subjectToPaint: ImageBitmap, subjectScale: number, topMargin: number) {
   const {width, height} = subjectToPaint;
 
   const squareSize = drawingTargetCtx.canvas.width;
@@ -298,7 +217,7 @@ function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRende
   drawingTargetCtx.drawImage(subjectToPaint, 0, -(topMargin * (OUTPUT_IMAGE_SIZE / 2)), width, height, xOffset, squareSize - newHeight, newWidth, newHeight);
 }
 
-async function finishCanvas(canvas: OffscreenCanvas, generationSettings: PFPGenerationSettings) {
+export async function finishCanvas(canvas: OffscreenCanvas, generationSettings: PFPGenerationSettings) {
   const ctx = canvas.getContext('2d')!;
 
   if(generationSettings.border && generationSettings.borderLayer === 'FOREGROUND') {
