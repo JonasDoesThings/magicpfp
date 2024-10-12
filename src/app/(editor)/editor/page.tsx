@@ -102,8 +102,6 @@ export default function EditorPage() {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         generationSettingsForm.setValue(key as keyof PFPGenerationSettings, val);
       }
-
-      console.log(generationSettingsForm.getValues('brandColor'));
     }
 
     // check if image was passed from frontpage through context
