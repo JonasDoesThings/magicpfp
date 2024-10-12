@@ -10,7 +10,7 @@ import {Button} from '~/components/ui/button';
 import Link from 'next/link';
 import {editorTemplates} from '~/lib/editorTemplates';
 import {ProcessedSubjectImagePassingContext} from '~/components/ProcessedSubjectImagePassingContext';
-import {Loader2} from 'lucide-react';
+import {Loader2, TriangleAlert} from 'lucide-react';
 
 export default function HomePage() {
   const {processedSubjectImage, setProcessedSubjectImage} = useContext(ProcessedSubjectImagePassingContext);
@@ -141,7 +141,10 @@ export default function HomePage() {
       </div>
       <div className='flex-grow'>
         {errorMessage ? (
-          <p className='font-bold text-red-700 text-lg'>{errorMessage}</p>
+          <div className='mx-auto px-8 text-red-700 text-center'>
+            <TriangleAlert className='mx-auto' size={48} />
+            <p className='font-bold text-lg'>{errorMessage}</p>
+          </div>
         ) : null}
         {isProcessing ? (
           <div className='text-center animate-pulse'>

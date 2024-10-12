@@ -16,7 +16,7 @@ import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, Form
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '~/components/ui/select';
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '~/components/ui/accordion';
 import {Checkbox} from '~/components/ui/checkbox';
-import {Frame, Image, Loader2, PaintbrushVertical, ScanFace} from 'lucide-react';
+import {Frame, Image, Loader2, PaintbrushVertical, ScanFace, TriangleAlert} from 'lucide-react';
 import ColorPicker from 'react-best-gradient-color-picker';
 import {Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger} from '~/components/ui/dialog';
 import {debounce, handleFileUpload} from '~/lib/utils';
@@ -154,7 +154,7 @@ export default function EditorPage() {
     };
 
     const onErrorReceived = (evt: ErrorEvent) => {
-      setEditorState({state: 'ERROR', errorMessage: (evt.error as Error)?.message ?? 'An unknown error occurred'});
+      setEditorState({state: 'ERROR', errorMessage: evt.message ?? evt.error?.message ?? 'An unknown error occurred'});
     };
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -513,7 +513,10 @@ export default function EditorPage() {
       </div>
       <div className='flex-grow'>
         {editorState.state === 'ERROR' ? (
-          <p className='text-red-600'>Error: {editorState.errorMessage}</p>
+          <div className='mx-auto px-8 text-red-700 text-center'>
+            <TriangleAlert className='mx-auto' size={48} />
+            <p className='font-bold text-lg'>{editorState.errorMessage}</p>
+          </div>
         ) : (editorState.state === 'DONE' && generatedImageDataUrl != null) ? (
           <div className='text-center'>
             <img src={generatedImageDataUrl} className='h-96 w-auto mx-auto' alt='generated output image' />
