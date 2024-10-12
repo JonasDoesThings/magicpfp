@@ -11,6 +11,7 @@ import Link from 'next/link';
 import {editorTemplates} from '~/lib/editorTemplates';
 import {ProcessedSubjectImagePassingContext} from '~/components/ProcessedSubjectImagePassingContext';
 import {Loader2, TriangleAlert} from 'lucide-react';
+import {WebGPUSupportInfo} from '~/components/WebGPUSupportInfo';
 
 export default function HomePage() {
   const {processedSubjectImage, setProcessedSubjectImage} = useContext(ProcessedSubjectImagePassingContext);
@@ -164,7 +165,7 @@ export default function HomePage() {
           </div>
         ) : null}
       </div>
-      {('gpu' in navigator) ? null : <span className='text-xs'>Your Browser does not support WebGPU. Processing will be slower.</span>}
+      <WebGPUSupportInfo />
     </main>
   );
 }

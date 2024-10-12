@@ -22,6 +22,7 @@ import {Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger} from '~/
 import {debounce, handleFileUpload} from '~/lib/utils';
 import {editorTemplates} from '~/lib/editorTemplates';
 import {ProcessedSubjectImagePassingContext} from '~/components/ProcessedSubjectImagePassingContext';
+import {WebGPUSupportInfo} from '~/components/WebGPUSupportInfo';
 
 export default function EditorPage() {
   // TODO: sync with url state
@@ -236,7 +237,7 @@ export default function EditorPage() {
                 )}
               />
               <Button type='submit' className='w-full bg-pink-500' disabled={editorState.state === 'PROCESSING'}>Generate</Button>
-              {('gpu' in navigator) ? null : <span className='text-xs'>Your Browser does not support WebGPU. Processing will be slower.</span>}
+              <WebGPUSupportInfo />
             </div>
             <hr className='!mt-8 !mb-4 block border' />
             <p className='text-2xl font-bold'>Customizations</p>
