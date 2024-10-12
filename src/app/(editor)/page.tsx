@@ -10,6 +10,7 @@ import {Button} from '~/components/ui/button';
 import Link from 'next/link';
 import {editorTemplates} from '~/lib/editorTemplates';
 import {ProcessedSubjectImagePassingContext} from '~/components/ProcessedSubjectImagePassingContext';
+import {Loader2} from 'lucide-react';
 
 export default function HomePage() {
   const {processedSubjectImage, setProcessedSubjectImage} = useContext(ProcessedSubjectImagePassingContext);
@@ -17,6 +18,7 @@ export default function HomePage() {
   const [selectedColor, setSelectedColor] = useState('#F1337F');
   const [errorMessage, setErrorMessage] = useState<string|null>(null);
 
+  const [isProcessing, setIsProcessing] = useState(false);
   const [generatedVariations, setGeneratedVariations] = useState<({templateId: string; imageDataUrl: string}[])|null>(null);
 
   const uploadFile = (evt: ChangeEvent) => {
@@ -39,6 +41,7 @@ export default function HomePage() {
       worker.current?.postMessage({
         blobUrl: onLoadEvt.target.result as string,
       });
+      setErrorMessage(null);
     };
 
     reader.readAsDataURL(file as Blob);
@@ -57,11 +60,18 @@ export default function HomePage() {
       switch (evt.data.state) {
       case 'DONE': {
         setProcessedSubjectImage(evt.data.processedSubjectImage);
+        // variations get re-generated when processedSubjectImage gets updated,
+        // thus we set isProcessing only after that
         break;
       }
       case 'ERROR': {
         setProcessedSubjectImage(undefined);
         setErrorMessage(evt.data.errorMessage);
+        setIsProcessing(false);
+        break;
+      }
+      case 'PROCESSING': {
+        setIsProcessing(true);
         break;
       }
       default: {
@@ -102,6 +112,7 @@ export default function HomePage() {
       brandColor: selectedColor,
     };
 
+    // maybe split-up and process in batches when we add more templates in the future?
     setGeneratedVariations((await Promise.all(Object.entries(editorTemplates).map(async ([templateId, template]) => ({
       templateId: templateId,
       imageDataUrl: await template.generate(processedSubjectImageBitmap, {
@@ -111,6 +122,8 @@ export default function HomePage() {
           : template.templateGenerationSettingsOverwrites),
       }),
     })))));
+
+    setIsProcessing(false);
     console.timeEnd('generateImages');
   });
 
@@ -130,7 +143,12 @@ export default function HomePage() {
         {errorMessage ? (
           <p className='font-bold text-red-700 text-lg'>{errorMessage}</p>
         ) : null}
-        {generatedVariations != null && generatedVariations.length > 0 ? (
+        {isProcessing ? (
+          <div className='text-center animate-pulse'>
+            <Loader2 className='animate-spin stroke-accent mx-auto' size={48} />
+            <span className='text-accent font-bold text-lg'>Processing</span>
+          </div>
+        ) : (generatedVariations != null && generatedVariations.length > 0) ? (
           <div className='flex flex-row items-center flex-wrap gap-5'>
             {generatedVariations.map((generatedImage) => (
               <div className='w-48 h-48 aspect-square relative group' key={generatedImage.templateId}>

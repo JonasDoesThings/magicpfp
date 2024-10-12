@@ -16,7 +16,7 @@ import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, Form
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '~/components/ui/select';
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '~/components/ui/accordion';
 import {Checkbox} from '~/components/ui/checkbox';
-import {Frame, Image, PaintbrushVertical, ScanFace} from 'lucide-react';
+import {Frame, Image, Loader2, PaintbrushVertical, ScanFace} from 'lucide-react';
 import ColorPicker from 'react-best-gradient-color-picker';
 import {Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger} from '~/components/ui/dialog';
 import {debounce, handleFileUpload} from '~/lib/utils';
@@ -142,6 +142,10 @@ export default function EditorPage() {
         setEditorState(evt.data);
         break;
       }
+      case 'PROCESSING' : {
+        setEditorState(evt.data);
+        break;
+      }
       default: {
         console.warn('received unknown evt state', evt.data);
         break;
@@ -188,11 +192,18 @@ export default function EditorPage() {
   }, [watchForm]);
 
   if(editorState.state === 'INITIALIZING') {
-    return <p>Initializing Model</p>;
+    return (
+      <main className='flex min-h-screen items-center justify-center'>
+        <div className='text-center animate-pulse'>
+          <Loader2 className='animate-spin stroke-accent mx-auto' size={48} />
+          <span className='text-accent font-bold text-lg'>Setting-Up local AI-Model</span>
+        </div>
+      </main>
+    );
   }
 
   return (
-    <main className='flex min-h-screen flex-col md:grid md:grid-cols-2 md:px-8 items-center justify-center'>
+    <main className='flex min-h-screen flex-col md:flex-row md:px-8 items-center justify-center'>
       <div className='w-full max-w-md flex flex-col gap-1.5'>
         <Form watch={watchForm} {...generationSettingsForm}>
           <form onSubmit={generationSettingsForm.handleSubmit((data) => generateImage(data))} className='space-y-1.5'>
@@ -207,7 +218,7 @@ export default function EditorPage() {
                 render={({field}) => (
                   <FormItem>
                     <FormLabel className='block'>
-                      Background Color
+                          Background Color
                     </FormLabel>
                     <FormControl>
                       <Dialog>
@@ -224,7 +235,7 @@ export default function EditorPage() {
                   </FormItem>
                 )}
               />
-              <Button type='submit' className='w-full bg-pink-500' disabled={editorState.state !== 'DONE' && editorState.state !== 'READY'}>Generate</Button>
+              <Button type='submit' className='w-full bg-pink-500' disabled={editorState.state === 'PROCESSING'}>Generate</Button>
               {('gpu' in navigator) ? null : <span className='text-xs'>Your Browser does not support WebGPU. Processing will be slower.</span>}
             </div>
             <hr className='!mt-8 !mb-4 block border' />
@@ -477,12 +488,12 @@ export default function EditorPage() {
             <p className='text-xs font-mono mb-1.5'>bg removal took {editorState.processingSeconds.toLocaleString(undefined, {maximumFractionDigits: 2})}s</p>
           ) : null}
           <p className='text-sm'>
-          Powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
-          Made my <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>GitHub</a>
+            Powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
+            Made my <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>GitHub</a>
           </p>
         </div>
       </div>
-      <div>
+      <div className='flex-grow'>
         {editorState.state === 'ERROR' ? (
           <p className='text-red-600'>Error: {editorState.errorMessage}</p>
         ) : (editorState.state === 'DONE' && generatedImageDataUrl != null) ? (
@@ -493,7 +504,10 @@ export default function EditorPage() {
             </div>
           </div>
         ) : (editorState.state === 'READY') ? null : (
-          <p className='text-green-600'>Loading...</p>
+          <div className='text-center animate-pulse'>
+            <Loader2 className='animate-spin stroke-accent mx-auto' size={48} />
+            <span className='text-accent font-bold text-lg'>Processing</span>
+          </div>
         )}
       </div>
     </main>

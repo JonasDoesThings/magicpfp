@@ -77,6 +77,10 @@ function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 48) {
 const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor: string; horizontalPadding: number}>) => {
   const startTime = performance.now();
 
+  postMessage({
+    state: 'PROCESSING',
+  } satisfies RemoveImgBackgroundWorkerResponse);
+
   // Retrieve the classification pipeline. When called for the first time,
   // this will load the pipeline and save it for future use.
   const [model, processor] = await ModelProcessorSingleton.getInstance();
