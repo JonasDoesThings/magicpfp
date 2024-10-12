@@ -15,6 +15,10 @@ export const pfpGenerationSettingsSchema = z.object({
   borderThickness: z.coerce.number().min(0).max(128),
   outputFormat: z.enum(['image/png', 'image/jpeg', 'image/webp']).default('image/png'),
   outputSize: z.coerce.number().int().min(64).max(4096).default(1024),
+  subjectSaturation: z.coerce.number().min(0).max(200).default(100),
+  subjectContrast: z.coerce.number().min(0).max(200).default(100),
+  subjectBrightness: z.coerce.number().min(0).max(200).default(100),
+  subjectShadow: z.boolean().default(false),
 });
 
 export type PFPGenerationSettings = z.infer<typeof pfpGenerationSettingsSchema>
@@ -25,7 +29,26 @@ export async function generateOutputImage(subject: ImageBitmap, generationSettin
   drawCanvasBackground(ctx, generationSettings, {
     fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
   });
+
+  ctx.save();
+  const filters: string[] = [''];
+  if(generationSettings.subjectBrightness !== 100) {
+    filters.push(`brightness(${generationSettings.subjectBrightness}%)`);
+  }
+  if(generationSettings.subjectSaturation !== 100) {
+    filters.push(`saturate(${generationSettings.subjectSaturation}%)`);
+  }
+  if(generationSettings.subjectContrast !== 100) {
+    filters.push(`contrast(${generationSettings.subjectContrast}%)`);
+  }
+  if(generationSettings.subjectShadow) {
+    filters.push('drop-shadow(-10px 10px 15px rgba(0, 0, 0, 45%))');
+  }
+
+  if(filters.length > 0) ctx.filter = filters.join(' ');
+
   drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
+  ctx.restore();
 
   return finishCanvas(canvas, generationSettings);
 }
@@ -44,6 +67,10 @@ export const defaultGenerationSettings: PFPGenerationSettings = {
   borderThickness: 40,
   outputFormat: 'image/png',
   outputSize: 1024,
+  subjectSaturation: 100,
+  subjectContrast: 100,
+  subjectBrightness: 100,
+  subjectShadow: false,
 };
 
 export const pfpGenerationSettingsUrlParsingSchema = Object.fromEntries(Object.entries(pfpGenerationSettingsSchema.shape).map(([key, valueShape]) => ([key, ((() => {
@@ -218,7 +245,16 @@ export function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanv
   const xOffset = (squareSize - newWidth) / 2;
 
   // Draw the image onto the square canvas, preserving aspect ratio and centering it
-  drawingTargetCtx.drawImage(subjectToPaint, 0, -(topMargin * (squareSize / 2)), width, height, xOffset, squareSize - newHeight, newWidth, newHeight);
+  drawingTargetCtx.drawImage(
+    subjectToPaint,
+    0,
+    -(topMargin * (squareSize / 2)),
+    width,
+    height,
+    xOffset,
+    squareSize - newHeight,
+    newWidth, newHeight
+  );
 }
 
 export async function finishCanvas(canvas: OffscreenCanvas, generationSettings: PFPGenerationSettings) {

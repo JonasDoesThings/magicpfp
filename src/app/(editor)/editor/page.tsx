@@ -23,6 +23,7 @@ import {debounce, handleFileUpload} from '~/lib/utils';
 import {editorTemplates} from '~/lib/editorTemplates';
 import {ProcessedSubjectImagePassingContext} from '~/components/ProcessedSubjectImagePassingContext';
 import {WebGPUSupportInfo} from '~/components/WebGPUSupportInfo';
+import {HRWithText} from '~/components/HRWithText';
 
 export default function EditorPage() {
   // TODO: sync with url state
@@ -278,6 +279,99 @@ export default function EditorPage() {
                         </FormItem>
                       )}
                     />
+                  </div>
+                  <HRWithText className='font-bold my-1'>Image Filters</HRWithText>
+                  <div className='md:grid md:grid-cols-2 gap-2 w-full'>
+                    <FormField
+                      control={generationSettingsForm.control}
+                      name='subjectSaturation'
+                      render={({field}) => (
+                        <FormItem>
+                          <FormLabel>
+                            Saturation (%)
+                          </FormLabel>
+                          <FormControl>
+                            <Input type='number' {...field} />
+                          </FormControl>
+                          <FormDescription />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={generationSettingsForm.control}
+                      name='subjectContrast'
+                      render={({field}) => (
+                        <FormItem>
+                          <FormLabel>
+                            Contrast (%)
+                          </FormLabel>
+                          <FormControl>
+                            <Input type='number' {...field} />
+                          </FormControl>
+                          <FormDescription />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className='md:grid md:grid-cols-2 gap-2 w-full'>
+                    <FormField
+                      control={generationSettingsForm.control}
+                      name='subjectBrightness'
+                      render={({field}) => (
+                        <FormItem>
+                          <FormLabel>
+                            Brightness (%)
+                          </FormLabel>
+                          <FormControl>
+                            <Input type='number' {...field} />
+                          </FormControl>
+                          <FormDescription />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className='flex flex-col justify-center'>
+                      <FormField
+                        control={generationSettingsForm.control}
+                        name='subjectShadow'
+                        render={({field}) => (
+                          <FormItem className='mt-1'>
+                            <FormLabel className='flex flex-row items-center space-y-0 gap-1.5'>
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              Draw Shadow
+                            </FormLabel>
+                            <FormDescription />
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={generationSettingsForm.control}
+                        name='subjectSaturation'
+                        render={({field}) => (
+                          <FormItem className='mt-1'>
+                            <FormLabel className='flex flex-row items-center space-y-0 gap-1.5'>
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value < 10}
+                                  onCheckedChange={(checked) => field.onChange(checked ? 0 : 100)}
+                                />
+                              </FormControl>
+                              Black & White
+                            </FormLabel>
+                            <FormDescription />
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
