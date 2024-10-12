@@ -15,6 +15,7 @@ export const pfpGenerationSettingsSchema = z.object({
   borderLayer: z.enum(['BACKGROUND', 'FOREGROUND']),
   borderColor: z.string(),
   borderThickness: z.coerce.number().min(0).max(128),
+  outputFormat: z.enum(['image/png', 'image/jpeg', 'image/webp']).default('image/png'),
 });
 
 export type PFPGenerationSettings = z.infer<typeof pfpGenerationSettingsSchema>
@@ -42,6 +43,7 @@ export const defaultGenerationSettings: PFPGenerationSettings = {
   borderLayer: 'FOREGROUND',
   borderColor: 'black',
   borderThickness: 40,
+  outputFormat: 'image/png',
 };
 
 export const pfpGenerationSettingsUrlParsingSchema = Object.fromEntries(Object.entries(pfpGenerationSettingsSchema.shape).map(([key, valueShape]) => ([key, ((() => {
@@ -239,5 +241,5 @@ export async function finishCanvas(canvas: OffscreenCanvas, generationSettings: 
     }
   }
 
-  return URL.createObjectURL(await canvas.convertToBlob());
+  return URL.createObjectURL(await canvas.convertToBlob({type: generationSettings.outputFormat}));
 }

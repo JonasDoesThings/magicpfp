@@ -16,7 +16,7 @@ import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, Form
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '~/components/ui/select';
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '~/components/ui/accordion';
 import {Checkbox} from '~/components/ui/checkbox';
-import {Frame, PaintbrushVertical, ScanFace} from 'lucide-react';
+import {Frame, Image, PaintbrushVertical, ScanFace} from 'lucide-react';
 import ColorPicker from 'react-best-gradient-color-picker';
 import {Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger} from '~/components/ui/dialog';
 import {debounce, handleFileUpload} from '~/lib/utils';
@@ -67,6 +67,14 @@ export default function EditorPage() {
     subjectImageBitmap = await createImageBitmap(processedSubjectImage);
     setGeneratedImageDataUrl(await generateOutputImage(subjectImageBitmap, generationSettings));
     console.timeEnd('generating output');
+  };
+
+  const downloadImage = () => {
+    if(!generatedImageDataUrl) return;
+    const link = document.createElement('a');
+    link.href = generatedImageDataUrl;
+    link.download = `magicpfp-${Date.now()}`;
+    link.click();
   };
 
   useEffect(() => {
@@ -142,7 +150,7 @@ export default function EditorPage() {
     };
 
     const onErrorReceived = (evt: ErrorEvent) => {
-      setEditorState({state: 'ERROR', errorMessage: (evt.error as Error).message});
+      setEditorState({state: 'ERROR', errorMessage: (evt.error as Error)?.message ?? 'An unknown error occurred'});
     };
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -432,6 +440,35 @@ export default function EditorPage() {
                   ) : null}
                 </AccordionContent>
               </AccordionItem>
+              <AccordionItem value='output'>
+                <AccordionTrigger><span className='flex flex-row items-center gap-2 font-bold'><Image className='stroke-accent' size={24} /> Output</span></AccordionTrigger>
+                <AccordionContent className='space-y-2'>
+                  <FormField
+                    control={generationSettingsForm.control}
+                    name='outputFormat'
+                    render={({field}) => (
+                      <FormItem>
+                        <FormLabel>
+                          Output File Format
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value='image/png'>PNG</SelectItem>
+                            <SelectItem value='image/webp'>WEBP</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
           </form>
         </Form>
@@ -449,8 +486,11 @@ export default function EditorPage() {
         {editorState.state === 'ERROR' ? (
           <p className='text-red-600'>Error: {editorState.errorMessage}</p>
         ) : (editorState.state === 'DONE' && generatedImageDataUrl != null) ? (
-          <div>
+          <div className='text-center'>
             <img src={generatedImageDataUrl} className='h-96 w-auto mx-auto' alt='generated output image' />
+            <div className='mt-4 mx-auto'>
+              <Button className='bg-accent text-accent-foreground' size='sm' onClick={downloadImage}>Download Image</Button>
+            </div>
           </div>
         ) : (editorState.state === 'READY') ? null : (
           <p className='text-green-600'>Loading...</p>
