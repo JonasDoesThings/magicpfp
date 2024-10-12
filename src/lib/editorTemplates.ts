@@ -1,7 +1,12 @@
 import tinycolor from 'tinycolor2';
-import {type PFPGenerationSettings, cssGradientToCanvasGradient, finishCanvas, drawCanvasBackground, drawImageToCanvasRespectingRatio} from '~/lib/imageVariations';
+import {
+  type PFPGenerationSettings,
+  generateOutputImage,
+} from '~/lib/imageVariations';
 
 const RGBA_WHITE = 'rgba(255, 255, 255, 1)';
+
+const defaultGenerateFunction = generateOutputImage;
 
 export const editorTemplates: Record<string, {
   templateGenerationSettingsOverwrites: Partial<PFPGenerationSettings> | ((generationSettings: PFPGenerationSettings) => Partial<PFPGenerationSettings>);
@@ -9,16 +14,7 @@ export const editorTemplates: Record<string, {
 }> = {
   'default': {
     templateGenerationSettingsOverwrites: {},
-    generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
-      const ctx = canvas.getContext('2d')!;
-      drawCanvasBackground(ctx, generationSettings, {
-        fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
-      });
-
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
-      return finishCanvas(canvas, generationSettings);
-    },
+    generate: defaultGenerateFunction,
   },
   'gradient-background-lighter-darker': {
     templateGenerationSettingsOverwrites: (generationSettings) => ({
@@ -28,16 +24,7 @@ export const editorTemplates: Record<string, {
         ${tinycolor(generationSettings.brandColor).darken(24).toRgbString()} 100%
       )`,
     }),
-    generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
-      const ctx = canvas.getContext('2d')!;
-      drawCanvasBackground(ctx, generationSettings, {
-        fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
-      });
-
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
-      return finishCanvas(canvas, generationSettings);
-    },
+    generate: defaultGenerateFunction,
   },
   'horizontal-gradient-background-lighter-darker': {
     templateGenerationSettingsOverwrites: (generationSettings) => ({
@@ -47,16 +34,7 @@ export const editorTemplates: Record<string, {
         ${tinycolor(generationSettings.brandColor).darken(24).toRgbString()} 100%
       )`,
     }),
-    generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
-      const ctx = canvas.getContext('2d')!;
-      drawCanvasBackground(ctx, generationSettings, {
-        fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
-      });
-
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
-      return finishCanvas(canvas, generationSettings);
-    },
+    generate: defaultGenerateFunction,
   },
   'smaller-background': {
     templateGenerationSettingsOverwrites: (generationSettings) => ({
@@ -69,16 +47,7 @@ export const editorTemplates: Record<string, {
         ${tinycolor(generationSettings.brandColor).darken(24).toRgbString()} 100%
       )`,
     }),
-    generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
-      const ctx = canvas.getContext('2d')!;
-      drawCanvasBackground(ctx, generationSettings, {
-        fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
-      });
-
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
-      return finishCanvas(canvas, generationSettings);
-    },
+    generate: defaultGenerateFunction,
   },
   'hollow-ring': {
     templateGenerationSettingsOverwrites: (generationSettings) => ({
@@ -87,16 +56,7 @@ export const editorTemplates: Record<string, {
       border: false,
       brandColor: `radial-gradient(${RGBA_WHITE} 0%, ${RGBA_WHITE} 75%, ${tinycolor(generationSettings.brandColor).toRgbString()} 75%, ${tinycolor(generationSettings.brandColor).toRgbString()} 100%)`,
     }),
-    generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
-      const ctx = canvas.getContext('2d')!;
-      drawCanvasBackground(ctx, generationSettings, {
-        fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
-      });
-
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
-      return finishCanvas(canvas, generationSettings);
-    },
+    generate: defaultGenerateFunction,
   },
   'multiple-hollow-rings': {
     templateGenerationSettingsOverwrites: (generationSettings) => ({
@@ -117,16 +77,6 @@ export const editorTemplates: Record<string, {
         ${tinycolor(generationSettings.brandColor).toRgbString()} 100%
       )`,
     }),
-    generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
-      const ctx = canvas.getContext('2d')!;
-      drawCanvasBackground(ctx, generationSettings, {
-        fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
-      });
-
-      drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
-      return finishCanvas(canvas, generationSettings);
-    },
+    generate: defaultGenerateFunction,
   },
 };
-
