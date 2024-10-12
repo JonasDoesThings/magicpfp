@@ -1,9 +1,9 @@
 'use client';
-import {type ChangeEvent, useContext, useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useRef, useState} from 'react';
 import {type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
 import {Input} from '~/components/ui/input';
 import {Label} from '~/components/ui/label';
-import {debounce} from '~/lib/utils';
+import {debounce, handleFileUpload} from '~/lib/utils';
 import {defaultGenerationSettings} from '~/lib/imageVariations';
 import {ColorPickerDialog} from '~/components/ColorPickerDialog';
 import {Button} from '~/components/ui/button';
@@ -22,31 +22,10 @@ export default function HomePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [generatedVariations, setGeneratedVariations] = useState<({templateId: string; imageDataUrl: string}[])|null>(null);
 
-  const uploadFile = (evt: ChangeEvent) => {
-    setProcessedSubjectImage(undefined);
-    const file = (evt.target as HTMLInputElement).files?.[0];
-    if (!file) {
-      console.debug('file was null');
-      return;
-    }
-
-    const reader = new FileReader();
-
-    // Set up a callback when the file is loaded
-    reader.onload = async (onLoadEvt) => {
-      if(!onLoadEvt.target?.result) {
-        console.error('onLoadEvt.target(.result) was null');
-        return;
-      }
-
-      worker.current?.postMessage({
-        blobUrl: onLoadEvt.target.result as string,
-      });
-      setErrorMessage(null);
-    };
-
-    reader.readAsDataURL(file as Blob);
-  };
+  const uploadFile = handleFileUpload((blobUrl) => {
+    worker.current?.postMessage({blobUrl});
+    setErrorMessage(null);
+  });
 
   const worker = useRef<Worker|null>(null);
   useEffect(() => {
@@ -89,7 +68,6 @@ export default function HomePage() {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     worker.current.addEventListener('message', onMessageReceived);
     worker.current.addEventListener('error', onErrorReceived);
-    //setAppState({state: 'READY'});
 
     return () => {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
