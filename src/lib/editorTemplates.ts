@@ -79,4 +79,11 @@ export const editorTemplates: Record<string, {
     }),
     generate: defaultGenerateFunction,
   },
+  'default-black-and-white': {
+    templateGenerationSettingsOverwrites: {
+      subjectSaturation: 0,
+      subjectContrast: 115,
+    },
+    generate: defaultGenerateFunction,
+  },
 };
