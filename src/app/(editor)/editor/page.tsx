@@ -454,30 +454,48 @@ export default function EditorPage() {
               <AccordionItem value='output'>
                 <AccordionTrigger><span className='flex flex-row items-center gap-2 font-bold'><Image className='stroke-accent' size={24} /> Output</span></AccordionTrigger>
                 <AccordionContent className='space-y-2'>
-                  <FormField
-                    control={generationSettingsForm.control}
-                    name='outputFormat'
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>
-                          Output File Format
-                        </FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <div className='md:grid md:grid-cols-2 gap-2 w-full'>
+                    <FormField
+                      control={generationSettingsForm.control}
+                      name='outputFormat'
+                      render={({field}) => (
+                        <FormItem>
+                          <FormLabel>
+                            Output File Format
+                          </FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value='image/png'>PNG</SelectItem>
+                              <SelectItem value='image/webp'>WEBP</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormDescription />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={generationSettingsForm.control}
+                      name='outputSize'
+                      render={({field}) => (
+                        <FormItem>
+                          <FormLabel>
+                            Output Image Size (px)
+                          </FormLabel>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
+                            <Input type='number' {...field} />
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value='image/png'>PNG</SelectItem>
-                            <SelectItem value='image/webp'>WEBP</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormDescription />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <FormDescription />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

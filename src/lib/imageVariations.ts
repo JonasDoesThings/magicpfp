@@ -1,8 +1,6 @@
 import {z, ZodBoolean, ZodEnum, ZodNumber} from 'zod';
 import {parseAsBoolean, parseAsFloat, parseAsInteger, parseAsString, parseAsStringEnum} from 'nuqs';
 
-export const OUTPUT_IMAGE_SIZE = 1024;
-
 export const pfpGenerationSettingsSchema = z.object({
   brandColor: z.string(),
   backgroundShape: z.enum(['RECT', 'CIRCLE', 'ROUNDEDRECT']),
@@ -16,12 +14,13 @@ export const pfpGenerationSettingsSchema = z.object({
   borderColor: z.string(),
   borderThickness: z.coerce.number().min(0).max(128),
   outputFormat: z.enum(['image/png', 'image/jpeg', 'image/webp']).default('image/png'),
+  outputSize: z.coerce.number().int().min(64).max(4096).default(1024),
 });
 
 export type PFPGenerationSettings = z.infer<typeof pfpGenerationSettingsSchema>
 
 export async function generateOutputImage(subject: ImageBitmap, generationSettings: PFPGenerationSettings) {
-  const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
+  const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
   const ctx = canvas.getContext('2d')!;
   drawCanvasBackground(ctx, generationSettings, {
     fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
@@ -44,6 +43,7 @@ export const defaultGenerationSettings: PFPGenerationSettings = {
   borderColor: 'black',
   borderThickness: 40,
   outputFormat: 'image/png',
+  outputSize: 1024,
 };
 
 export const pfpGenerationSettingsUrlParsingSchema = Object.fromEntries(Object.entries(pfpGenerationSettingsSchema.shape).map(([key, valueShape]) => ([key, ((() => {
@@ -65,7 +65,10 @@ export const pfpGenerationSettingsUrlParsingSchema = Object.fromEntries(Object.e
   return parseAsString.withDefault(defaultValue as string);
 })())])));
 
-export function cssGradientToCanvasGradient(ctx: OffscreenCanvasRenderingContext2D, gradientStr: string, width = OUTPUT_IMAGE_SIZE, height = OUTPUT_IMAGE_SIZE) {
+export function cssGradientToCanvasGradient(ctx: OffscreenCanvasRenderingContext2D, gradientStr: string) {
+  const width = ctx.canvas.width;
+  const height = ctx.canvas.height;
+
   gradientStr = gradientStr.replace(/\s\s+/g, ' ');
   // Extract the gradient type and the rest of the gradient string
   const gradientTypeMatch = /(linear|radial)-gradient\((.*)\)/.exec(gradientStr);
@@ -127,22 +130,22 @@ export function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, gen
 
   switch(generationSettings.backgroundShape) {
   case 'RECT': {
-    ctx.rect((OUTPUT_IMAGE_SIZE - (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale)) / 2, OUTPUT_IMAGE_SIZE - (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition), (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale), (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale));
+    ctx.rect((generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale)) / 2, generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition), (generationSettings.outputSize * generationSettings.backgroundScale), (generationSettings.outputSize * generationSettings.backgroundScale));
     break;
   }
   case 'CIRCLE': {
     ctx.ellipse(
-      (OUTPUT_IMAGE_SIZE / 2),
-      (OUTPUT_IMAGE_SIZE / 2) * (generationSettings.backgroundVerticalPosition/generationSettings.backgroundScale),
-      (OUTPUT_IMAGE_SIZE / 2) * generationSettings.backgroundScale,
-      (OUTPUT_IMAGE_SIZE / 2) * generationSettings.backgroundScale,
+      (generationSettings.outputSize / 2),
+      (generationSettings.outputSize / 2) * (generationSettings.backgroundVerticalPosition/generationSettings.backgroundScale),
+      (generationSettings.outputSize / 2) * generationSettings.backgroundScale,
+      (generationSettings.outputSize / 2) * generationSettings.backgroundScale,
       0, 0, 2 * Math.PI
     );
 
     break;
   }
   case 'ROUNDEDRECT': {
-    ctx.roundRect((OUTPUT_IMAGE_SIZE - (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale)) / 2, OUTPUT_IMAGE_SIZE - (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition), (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale), (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale), 72);
+    ctx.roundRect((generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale)) / 2, generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition), (generationSettings.outputSize * generationSettings.backgroundScale), (generationSettings.outputSize * generationSettings.backgroundScale), 72);
     break;
   }
   default: {
@@ -166,29 +169,29 @@ export function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSet
   switch(generationSettings.backgroundShape) {
   case 'RECT': {
     ctx.rect(
-      (OUTPUT_IMAGE_SIZE - (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale)) / 2 + (generationSettings.borderThickness/2),
-      OUTPUT_IMAGE_SIZE - (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition) + (generationSettings.borderThickness/2),
-      (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale) - (generationSettings.borderThickness),
-      (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale) - (generationSettings.borderThickness)
+      (generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale)) / 2 + (generationSettings.borderThickness/2),
+      generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition) + (generationSettings.borderThickness/2),
+      (generationSettings.outputSize * generationSettings.backgroundScale) - (generationSettings.borderThickness),
+      (generationSettings.outputSize * generationSettings.backgroundScale) - (generationSettings.borderThickness)
     );
     break;
   }
   case 'CIRCLE': {
     ctx.ellipse(
-      (OUTPUT_IMAGE_SIZE / 2),
-      (OUTPUT_IMAGE_SIZE / 2) * (generationSettings.backgroundVerticalPosition/generationSettings.backgroundScale),
-      (OUTPUT_IMAGE_SIZE / 2) * generationSettings.backgroundScale - (generationSettings.borderThickness/2),
-      (OUTPUT_IMAGE_SIZE / 2) * generationSettings.backgroundScale - (generationSettings.borderThickness/2),
+      (generationSettings.outputSize / 2),
+      (generationSettings.outputSize / 2) * (generationSettings.backgroundVerticalPosition/generationSettings.backgroundScale),
+      (generationSettings.outputSize / 2) * generationSettings.backgroundScale - (generationSettings.borderThickness/2),
+      (generationSettings.outputSize / 2) * generationSettings.backgroundScale - (generationSettings.borderThickness/2),
       0, 0, 2 * Math.PI
     );
     break;
   }
   case 'ROUNDEDRECT': {
     ctx.roundRect(
-      (OUTPUT_IMAGE_SIZE - (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale)) / 2 + (generationSettings.borderThickness/2),
-      OUTPUT_IMAGE_SIZE - (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition) + (generationSettings.borderThickness/2),
-      (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale) - (generationSettings.borderThickness),
-      (OUTPUT_IMAGE_SIZE * generationSettings.backgroundScale) - (generationSettings.borderThickness),
+      (generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale)) / 2 + (generationSettings.borderThickness/2),
+      generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition) + (generationSettings.borderThickness/2),
+      (generationSettings.outputSize * generationSettings.backgroundScale) - (generationSettings.borderThickness),
+      (generationSettings.outputSize * generationSettings.backgroundScale) - (generationSettings.borderThickness),
       50
     );
     break;
@@ -215,7 +218,7 @@ export function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanv
   const xOffset = (squareSize - newWidth) / 2;
 
   // Draw the image onto the square canvas, preserving aspect ratio and centering it
-  drawingTargetCtx.drawImage(subjectToPaint, 0, -(topMargin * (OUTPUT_IMAGE_SIZE / 2)), width, height, xOffset, squareSize - newHeight, newWidth, newHeight);
+  drawingTargetCtx.drawImage(subjectToPaint, 0, -(topMargin * (squareSize / 2)), width, height, xOffset, squareSize - newHeight, newWidth, newHeight);
 }
 
 export async function finishCanvas(canvas: OffscreenCanvas, generationSettings: PFPGenerationSettings) {
@@ -229,13 +232,13 @@ export async function finishCanvas(canvas: OffscreenCanvas, generationSettings: 
     if(generationSettings.backgroundShape === 'CIRCLE') {
       ctx.globalCompositeOperation = 'destination-in';
       ctx.beginPath();
-      ctx.arc(OUTPUT_IMAGE_SIZE / 2, OUTPUT_IMAGE_SIZE / 2, OUTPUT_IMAGE_SIZE / 2, 0, Math.PI*2, true);
+      ctx.arc(generationSettings.outputSize / 2, generationSettings.outputSize / 2, generationSettings.outputSize / 2, 0, Math.PI*2, true);
       ctx.closePath();
       ctx.fill();
     } else if(generationSettings.backgroundShape === 'ROUNDEDRECT') {
       ctx.globalCompositeOperation = 'destination-in';
       ctx.beginPath();
-      ctx.roundRect(0, 0, OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE, 72);
+      ctx.roundRect(0, 0, generationSettings.outputSize, generationSettings.outputSize, 72);
       ctx.closePath();
       ctx.fill();
     }

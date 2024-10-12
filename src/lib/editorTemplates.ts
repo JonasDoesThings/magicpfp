@@ -1,5 +1,5 @@
 import tinycolor from 'tinycolor2';
-import {OUTPUT_IMAGE_SIZE, type PFPGenerationSettings, cssGradientToCanvasGradient, finishCanvas, drawCanvasBackground, drawImageToCanvasRespectingRatio} from '~/lib/imageVariations';
+import {type PFPGenerationSettings, cssGradientToCanvasGradient, finishCanvas, drawCanvasBackground, drawImageToCanvasRespectingRatio} from '~/lib/imageVariations';
 
 const RGBA_WHITE = 'rgba(255, 255, 255, 1)';
 
@@ -10,7 +10,7 @@ export const editorTemplates: Record<string, {
   'default': {
     templateGenerationSettingsOverwrites: {},
     generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
+      const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
       const ctx = canvas.getContext('2d')!;
       drawCanvasBackground(ctx, generationSettings, {
         fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
@@ -29,7 +29,7 @@ export const editorTemplates: Record<string, {
       )`,
     }),
     generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
+      const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
       const ctx = canvas.getContext('2d')!;
       drawCanvasBackground(ctx, generationSettings, {
         fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
@@ -48,7 +48,7 @@ export const editorTemplates: Record<string, {
       )`,
     }),
     generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
+      const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
       const ctx = canvas.getContext('2d')!;
       drawCanvasBackground(ctx, generationSettings, {
         fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
@@ -70,7 +70,7 @@ export const editorTemplates: Record<string, {
       )`,
     }),
     generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
+      const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
       const ctx = canvas.getContext('2d')!;
       drawCanvasBackground(ctx, generationSettings, {
         fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
@@ -88,7 +88,7 @@ export const editorTemplates: Record<string, {
       brandColor: `radial-gradient(${RGBA_WHITE} 0%, ${RGBA_WHITE} 75%, ${tinycolor(generationSettings.brandColor).toRgbString()} 75%, ${tinycolor(generationSettings.brandColor).toRgbString()} 100%)`,
     }),
     generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
+      const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
       const ctx = canvas.getContext('2d')!;
       drawCanvasBackground(ctx, generationSettings, {
         fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
@@ -118,7 +118,7 @@ export const editorTemplates: Record<string, {
       )`,
     }),
     generate: async (subject: ImageBitmap, generationSettings) => {
-      const canvas = new OffscreenCanvas(OUTPUT_IMAGE_SIZE, OUTPUT_IMAGE_SIZE);
+      const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
       const ctx = canvas.getContext('2d')!;
       drawCanvasBackground(ctx, generationSettings, {
         fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
