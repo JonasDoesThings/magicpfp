@@ -112,7 +112,6 @@ export function cssGradientToCanvasGradient(ctx: OffscreenCanvasRenderingContext
       const stop = parseFloat(colorStopMatch[2]!) / 100;
       canvasGradient.addColorStop(stop, color);
     } else {
-      console.log(gradientParams);
       console.warn('Invalid color stop:', param);
     }
   });
