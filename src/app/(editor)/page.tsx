@@ -143,6 +143,7 @@ export default function HomePage() {
           </div>
         ) : null}
       </div>
+      {('gpu' in navigator) ? null : <span className='text-xs'>Your Browser does not support WebGPU. Processing will be slower.</span>}
     </main>
   );
 }

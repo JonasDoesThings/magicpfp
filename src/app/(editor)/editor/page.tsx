@@ -217,6 +217,7 @@ export default function EditorPage() {
                 )}
               />
               <Button type='submit' className='w-full bg-pink-500' disabled={editorState.state !== 'DONE' && editorState.state !== 'READY'}>Generate</Button>
+              {('gpu' in navigator) ? null : <span className='text-xs'>Your Browser does not support WebGPU. Processing will be slower.</span>}
             </div>
             <hr className='!mt-8 !mb-4 block border' />
             <p className='text-2xl font-bold'>Customizations</p>

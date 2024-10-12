@@ -8,10 +8,6 @@ import {
 } from '@huggingface/transformers';
 import {type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
 
-if (!('gpu' in navigator)) {
-  throw new Error('WebGPU not supported');
-}
-
 // Since we will download the model from the Hugging Face Hub, we can skip the local model check
 env.allowLocalModels = false;
 
@@ -23,7 +19,7 @@ class ModelProcessorSingleton {
     if (this.instance === null) {
       // Using experimental transformers.js v3 alpha with WebGPU Support (https://github.com/xenova/transformers.js/pull/545)
       const model = await AutoModel.from_pretrained('briaai/RMBG-1.4', {
-        device: 'webgpu',
+        device: ('gpu' in navigator) ? 'webgpu' : undefined,
         dtype: 'fp32', // or fp16, TODO: what's the difference?
       });
 
