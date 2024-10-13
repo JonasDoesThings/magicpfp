@@ -1,6 +1,13 @@
 'use client';
 
-import {Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger} from '~/components/ui/dialog';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/dialog';
 import ColorPicker from 'react-best-gradient-color-picker';
 import {Button} from '~/components/ui/button';
 import {type PropsWithChildren, useState} from 'react';
@@ -15,6 +22,9 @@ export function ColorPickerDialog({value, onChange, liveUpdateOnChange}: PropsWi
       </DialogTrigger>
       <DialogContent className='px-4 w-auto' withoutCloseButton>
         <DialogTitle className='sr-only'>Color Picker</DialogTitle>
+        <DialogDescription className='sr-only'>
+          Pick a color
+        </DialogDescription>
         <ColorPicker value={selectedColor} onChange={(value) => {
           setSelectedColor(value);
           if(liveUpdateOnChange) {
