@@ -58,3 +58,11 @@ export function handleImagePaste(callback: (dataTransfer: DataTransfer) => void)
     callback(dataTransfer);
   };
 }
+
+export const downloadFileOnClick = (dataUrl: string) => () => {
+  if(!dataUrl) return;
+  const link = document.createElement('a');
+  link.href = dataUrl;
+  link.download = `magicpfp-${Date.now()}`;
+  link.click();
+};

@@ -3,14 +3,14 @@ import {useContext, useEffect, useRef, useState} from 'react';
 import {type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
 import {Input} from '~/components/ui/input';
 import {Label} from '~/components/ui/label';
-import {debounce, handleImagePaste, handleFileUpload} from '~/lib/utils';
+import {debounce, handleImagePaste, handleFileUpload, downloadFileOnClick} from '~/lib/utils';
 import {defaultGenerationSettings} from '~/lib/imageVariations';
 import {ColorPickerDialog} from '~/components/ColorPickerDialog';
 import {Button} from '~/components/ui/button';
 import Link from 'next/link';
 import {editorTemplates} from '~/lib/editorTemplates';
 import {ProcessedSubjectImagePassingContext} from '~/components/ProcessedSubjectImagePassingContext';
-import {Loader2, TriangleAlert} from 'lucide-react';
+import {Download, Loader2, TriangleAlert} from 'lucide-react';
 import {WebGPUSupportInfo} from '~/components/WebGPUSupportInfo';
 
 export default function HomePage() {
@@ -126,11 +126,11 @@ export default function HomePage() {
   });
 
   return (
-    <main className='min-h-screen flex flex-col py-8 px-12 items-center justify-center gap-8'>
-      <div className='flex flex-row justify-center gap-5 bg-accent text-white px-3 py-2.5 w-full max-w-5xl rounded-2xl'>
+    <main className='min-h-screen flex flex-col py-8 px-6 md:px-12 items-center justify-center gap-8'>
+      <div className='flex flex-row flex-wrap justify-center gap-5 bg-accent text-white px-6 md:px-3 py-2.5 w-full md:max-w-5xl rounded-2xl'>
         <Label className='flex flex-row items-center gap-1.5'>
           <span>Picture</span>
-          <Input type='file' className='w-64' accept={'image/*'} onChange={uploadFile} ref={fileInputRef} />
+          <Input type='file' className='w-48 md:w-64' accept={'image/*'} onChange={uploadFile} ref={fileInputRef} />
         </Label>
         <Label className='flex flex-row items-center gap-1.5'>
           <span className='text-nowrap'>Background Color</span>
@@ -150,13 +150,21 @@ export default function HomePage() {
             <span className='text-accent font-bold text-lg'>Processing</span>
           </div>
         ) : (generatedVariations != null && generatedVariations.length > 0) ? (
-          <div className='flex flex-row items-center flex-wrap gap-5'>
+          <div className='flex flex-row items-center justify-center flex-wrap gap-8 gap-y-12 md:gap-8'>
             {generatedVariations.map((generatedImage) => (
-              <div className='w-48 h-48 aspect-square relative group' key={generatedImage.templateId}>
-                <Link href={`/editor?template=${generatedImage.templateId}&brandColor=${encodeURIComponent(selectedColor)}`}>
-                  <Button className='opacity-0 group-hover:opacity-100 transition duration-200 mx-6 left-0 right-0 bottom-2.5 absolute font-bold ring ring-white hover:bg-black'>Customize</Button>
-                </Link>
+              <div className='w-40 h-40 md:w-48 md:h-48 aspect-square relative group font-bold' key={generatedImage.templateId}>
                 <img className='w-full h-full' src={generatedImage.imageDataUrl} />
+                <div className='flex flex-row justify-center gap-1.5 mt-1 md:absolute md:left-0 md:right-0 md:bottom-2 md:opacity-0 group-hover:opacity-100 transition duration-200'>
+                  <Link
+                    href={`/editor?template=${generatedImage.templateId}&brandColor=${encodeURIComponent(selectedColor)}`}
+                    className='block'
+                  >
+                    <Button size='sm'>
+                      Customize
+                    </Button>
+                  </Link>
+                  <Button size='sm' onClick={downloadFileOnClick(generatedImage.imageDataUrl)}><Download size={20} /></Button>
+                </div>
               </div>
             ))}
           </div>
