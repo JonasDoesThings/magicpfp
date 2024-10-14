@@ -42,3 +42,19 @@ export function handleFileUpload(callback: (blobString: string) => void) {
     reader.readAsDataURL(file as Blob);
   };
 }
+
+export function handleImagePaste(callback: (dataTransfer: DataTransfer) => void) {
+  return (evt: ClipboardEvent) => {
+    if((evt.clipboardData?.files?.length ?? 0) === 0) return;
+
+    const pastedFile = evt.clipboardData?.items[0]?.getAsFile();
+    if(!pastedFile) return;
+
+    if(!pastedFile.type.startsWith('image/')) return;
+
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(pastedFile);
+
+    callback(dataTransfer);
+  };
+}

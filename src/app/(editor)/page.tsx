@@ -3,7 +3,7 @@ import {useContext, useEffect, useRef, useState} from 'react';
 import {type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
 import {Input} from '~/components/ui/input';
 import {Label} from '~/components/ui/label';
-import {debounce, handleFileUpload} from '~/lib/utils';
+import {debounce, handleImagePaste, handleFileUpload} from '~/lib/utils';
 import {defaultGenerationSettings} from '~/lib/imageVariations';
 import {ColorPickerDialog} from '~/components/ColorPickerDialog';
 import {Button} from '~/components/ui/button';
@@ -14,6 +14,7 @@ import {Loader2, TriangleAlert} from 'lucide-react';
 import {WebGPUSupportInfo} from '~/components/WebGPUSupportInfo';
 
 export default function HomePage() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const {processedSubjectImage, setProcessedSubjectImage} = useContext(ProcessedSubjectImagePassingContext);
   // todo, use url state
   const [selectedColor, setSelectedColor] = useState('#F1337F');
@@ -77,6 +78,24 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    const onPaste = handleImagePaste((dataTransfer) => {
+      if(!fileInputRef.current) return;
+      if(fileInputRef.current.files?.[0]?.name === dataTransfer.files[0]?.name
+        && fileInputRef.current.files?.[0]?.size === dataTransfer.files[0]?.size) {
+        return;
+      }
+
+      fileInputRef.current.files = dataTransfer.files;
+      fileInputRef.current.dispatchEvent(new Event('change', {bubbles: true}));
+    });
+
+    window.addEventListener('paste', onPaste);
+    return () => {
+      window.removeEventListener('paste', onPaste);
+    };
+  }, [fileInputRef]);
+
+  useEffect(() => {
     if(!processedSubjectImage) return;
     generateImages();
   }, [processedSubjectImage, selectedColor]);
@@ -111,7 +130,7 @@ export default function HomePage() {
       <div className='flex flex-row justify-center gap-5 bg-accent text-white px-3 py-2.5 w-full max-w-5xl rounded-2xl'>
         <Label className='flex flex-row items-center gap-1.5'>
           <span>Picture</span>
-          <Input type='file' className='w-64' onChange={uploadFile} />
+          <Input type='file' className='w-64' accept={'image/*'} onChange={uploadFile} ref={fileInputRef} />
         </Label>
         <Label className='flex flex-row items-center gap-1.5'>
           <span className='text-nowrap'>Background Color</span>

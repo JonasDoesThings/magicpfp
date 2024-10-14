@@ -19,13 +19,14 @@ import {Checkbox} from '~/components/ui/checkbox';
 import {Frame, Image, Loader2, PaintbrushVertical, ScanFace, TriangleAlert} from 'lucide-react';
 import ColorPicker from 'react-best-gradient-color-picker';
 import {Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger} from '~/components/ui/dialog';
-import {debounce, handleFileUpload} from '~/lib/utils';
+import {debounce, handleFileUpload, handleImagePaste} from '~/lib/utils';
 import {editorTemplates} from '~/lib/editorTemplates';
 import {ProcessedSubjectImagePassingContext} from '~/components/ProcessedSubjectImagePassingContext';
 import {WebGPUSupportInfo} from '~/components/WebGPUSupportInfo';
 import {HRWithText} from '~/components/HRWithText';
 
 export default function EditorPage() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   // TODO: sync with url state
   // const [urlFormState, setUrlFormState] = useQueryStates(pfpGenerationSettingsUrlParsingSchema, {history: 'replace'});
   const [editorState, setEditorState] = useState<EditorState>({state: 'INITIALIZING'});
@@ -177,6 +178,24 @@ export default function EditorPage() {
   }, []);
 
   useEffect(() => {
+    const onPaste = handleImagePaste((dataTransfer) => {
+      if(!fileInputRef.current) return;
+      if(fileInputRef.current.files?.[0]?.name === dataTransfer.files[0]?.name
+        && fileInputRef.current.files?.[0]?.size === dataTransfer.files[0]?.size) {
+        return;
+      }
+
+      fileInputRef.current.files = dataTransfer.files;
+      fileInputRef.current.dispatchEvent(new Event('change', {bubbles: true}));
+    });
+
+    window.addEventListener('paste', onPaste);
+    return () => {
+      window.removeEventListener('paste', onPaste);
+    };
+  }, [fileInputRef]);
+
+  useEffect(() => {
     const debouncedRegenerateForm = debounce((formData: PFPGenerationSettings) => {
       generationSettingsFormRef.current!.trigger()
         .then(async (isValid) => {
@@ -212,7 +231,7 @@ export default function EditorPage() {
             <div className='border p-6 bg-muted rounded-md space-y-4 [&_input]:bg-background'>
               <Label className='space-y-2.5'>
                 <span>Picture</span>
-                <Input type='file' onChange={onFileUpload} />
+                <Input type='file' onChange={onFileUpload} ref={fileInputRef} />
               </Label>
               <FormField
                 control={generationSettingsForm.control}
