@@ -206,11 +206,15 @@ export default function EditorPage() {
 
   if(editorState.state === 'INITIALIZING') {
     return (
-      <main className='flex min-h-screen items-center justify-center'>
+      <main className='flex flex-col min-h-screen items-center justify-center'>
         <div className='text-center animate-pulse'>
           <Loader2 className='animate-spin stroke-accent mx-auto' size={48} />
           <span className='text-accent font-bold text-lg'>Setting-Up local AI-Model</span>
         </div>
+        <p className='absolute bottom-2 text-xs'>
+          Powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
+          Made my <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>GitHub</a>
+        </p>
       </main>
     );
   }
@@ -637,12 +641,8 @@ export default function EditorPage() {
               took {editorState.processingSeconds.toLocaleString(undefined, {maximumFractionDigits: 2})}s</p>
           ) : null}
           <p className='text-sm'>
-            Powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank'
-              rel='nofollow'>RMBG-1.4</a><br />
-            Made my <a className='underline' href='https://twitter.com/JonasDoesThings'
-              target='_blank'>JonasDoesThings</a>, source code on <a className='underline'
-              href='https://github.com/JonasDoesThings/magicpfp'
-              target='_blank'>GitHub</a>
+            Powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
+            Made my <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>GitHub</a>
           </p>
         </div>
       </footer>

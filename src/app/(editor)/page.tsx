@@ -170,6 +170,10 @@ export default function HomePage() {
           </div>
         ) : null}
       </div>
+      <p className='mt-8 md:mt-1 text-xs'>
+        Powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
+        Made my <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>GitHub</a>
+      </p>
       <WebGPUSupportInfo />
     </main>
   );
