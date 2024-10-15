@@ -457,9 +457,23 @@ export default function EditorPage() {
                     </div>
                     <FormField
                       control={generationSettingsForm.control}
+                      name='backgroundImage'
+                      render={({field}) => (
+                        <FormItem>
+                          <FormLabel>
+                            Background Image
+                          </FormLabel>
+                          <Input type='file' onChange={handleFileUpload(field.onChange)} />
+                          <FormDescription />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={generationSettingsForm.control}
                       name='useBackgroundShapeAsImageMask'
                       render={({field}) => (
-                        <FormItem className='mt-1'>
+                        <FormItem className='mt-2.5'>
                           <FormLabel className='flex flex-row items-center space-y-0 gap-1.5'>
                             <FormControl>
                               <Checkbox

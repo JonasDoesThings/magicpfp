@@ -19,6 +19,7 @@ export const pfpGenerationSettingsSchema = z.object({
   subjectContrast: z.coerce.number().min(0).max(200).default(100),
   subjectBrightness: z.coerce.number().min(0).max(200).default(100),
   subjectShadow: z.boolean().default(false),
+  backgroundImage: z.string().optional(),
 });
 
 export type PFPGenerationSettings = z.infer<typeof pfpGenerationSettingsSchema>
@@ -26,7 +27,7 @@ export type PFPGenerationSettings = z.infer<typeof pfpGenerationSettingsSchema>
 export async function generateOutputImage(subject: ImageBitmap, generationSettings: PFPGenerationSettings) {
   const canvas = new OffscreenCanvas(generationSettings.outputSize, generationSettings.outputSize);
   const ctx = canvas.getContext('2d')!;
-  drawCanvasBackground(ctx, generationSettings, {
+  await drawCanvasBackground(ctx, generationSettings, {
     fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
   });
 
@@ -151,7 +152,7 @@ export function cssGradientToCanvasGradient(ctx: OffscreenCanvasRenderingContext
   return canvasGradient;
 }
 
-export function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings, backgroundSettings: {fillStyle: CanvasFillStrokeStyles['fillStyle']}) {
+export async function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings, backgroundSettings: {fillStyle: CanvasFillStrokeStyles['fillStyle']}) {
   ctx.beginPath();
   ctx.fillStyle = backgroundSettings.fillStyle;
 
@@ -181,6 +182,24 @@ export function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, gen
   }
   ctx.fill();
   ctx.closePath();
+
+  if(generationSettings.backgroundImage) {
+    const bgImage = await new Promise<HTMLImageElement>((resolve) => {
+      const backgroundImage = new Image();
+      backgroundImage.src = generationSettings.backgroundImage!;
+      backgroundImage.onload = () => {
+        resolve(backgroundImage);
+      };
+    });
+
+    ctx.drawImage(
+      bgImage,
+      (generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale)) / 2,
+      generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition),
+      (generationSettings.outputSize * generationSettings.backgroundScale),
+      (generationSettings.outputSize * generationSettings.backgroundScale)
+    );
+  }
 
   if(generationSettings.border && generationSettings.borderLayer === 'BACKGROUND') {
     drawBorder(ctx, generationSettings);
