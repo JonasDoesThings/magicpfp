@@ -39,7 +39,21 @@ export const editorTemplates: Record<string, {
   'smaller-background': {
     templateGenerationSettingsOverwrites: (generationSettings) => ({
       backgroundScale: 0.75,
-      backgroundVerticalPosition: 0.85,
+      backgroundVerticalPosition: 1.08,
+      border: false,
+      brandColor: `linear-gradient(0deg,
+        ${tinycolor(generationSettings.brandColor).lighten(32).toRgbString()} 0%,
+        ${tinycolor(generationSettings.brandColor).toRgbString()} 50%,
+        ${tinycolor(generationSettings.brandColor).darken(24).toRgbString()} 100%
+      )`,
+    }),
+    generate: defaultGenerateFunction,
+  },
+  'smaller-background-bottom': {
+    templateGenerationSettingsOverwrites: (generationSettings) => ({
+      backgroundScale: 0.8,
+      backgroundVerticalPosition: 0.8,
+      subjectScale: 0.9,
       border: false,
       brandColor: `linear-gradient(0deg,
         ${tinycolor(generationSettings.brandColor).lighten(32).toRgbString()} 0%,
