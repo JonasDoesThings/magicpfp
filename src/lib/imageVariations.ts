@@ -153,33 +153,12 @@ export function cssGradientToCanvasGradient(ctx: OffscreenCanvasRenderingContext
 }
 
 export async function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings, backgroundSettings: {fillStyle: CanvasFillStrokeStyles['fillStyle']}) {
+  ctx.save();
   ctx.beginPath();
   ctx.fillStyle = backgroundSettings.fillStyle;
 
-  switch(generationSettings.backgroundShape) {
-  case 'RECT': {
-    ctx.rect((generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale)) / 2, generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition), (generationSettings.outputSize * generationSettings.backgroundScale), (generationSettings.outputSize * generationSettings.backgroundScale));
-    break;
-  }
-  case 'CIRCLE': {
-    ctx.ellipse(
-      (generationSettings.outputSize / 2),
-      (generationSettings.outputSize / 2) * (generationSettings.backgroundVerticalPosition/generationSettings.backgroundScale),
-      (generationSettings.outputSize / 2) * generationSettings.backgroundScale,
-      (generationSettings.outputSize / 2) * generationSettings.backgroundScale,
-      0, 0, 2 * Math.PI
-    );
+  ctx.rect(0, 0, generationSettings.outputSize, generationSettings.outputSize);
 
-    break;
-  }
-  case 'ROUNDEDRECT': {
-    ctx.roundRect((generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale)) / 2, generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition), (generationSettings.outputSize * generationSettings.backgroundScale), (generationSettings.outputSize * generationSettings.backgroundScale), 72);
-    break;
-  }
-  default: {
-    throw new Error(`unknown background shape ${generationSettings.backgroundShape as string}`);
-  }
-  }
   ctx.fill();
   ctx.closePath();
 
@@ -192,18 +171,41 @@ export async function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2
       };
     });
 
-    ctx.drawImage(
-      bgImage,
-      (generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale)) / 2,
-      generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition),
-      (generationSettings.outputSize * generationSettings.backgroundScale),
-      (generationSettings.outputSize * generationSettings.backgroundScale)
-    );
+    ctx.drawImage(bgImage, 0, 0, generationSettings.outputSize, generationSettings.outputSize);
   }
 
   if(generationSettings.border && generationSettings.borderLayer === 'BACKGROUND') {
     drawBorder(ctx, generationSettings);
   }
+
+  ctx.globalCompositeOperation = 'destination-in';
+  ctx.beginPath();
+  if (generationSettings.backgroundShape === 'CIRCLE') {
+    ctx.arc(
+      generationSettings.outputSize / 2,
+      generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale / 2 * (2 * generationSettings.backgroundVerticalPosition - 1)),
+      generationSettings.outputSize * generationSettings.backgroundScale / 2,
+      0, Math.PI * 2
+    );
+  } else if (generationSettings.backgroundShape === 'ROUNDEDRECT') {
+    ctx.roundRect(
+      (generationSettings.outputSize - generationSettings.outputSize * generationSettings.backgroundScale) / 2,
+      (generationSettings.outputSize - generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition) + (72 / (Math.PI*4)),
+      generationSettings.outputSize * generationSettings.backgroundScale,
+      generationSettings.outputSize * generationSettings.backgroundScale,
+      72
+    );
+  } else if(generationSettings.backgroundShape === 'RECT') {
+    ctx.rect(
+      (generationSettings.outputSize - generationSettings.outputSize * generationSettings.backgroundScale) / 2,
+      generationSettings.outputSize - generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition,
+      generationSettings.outputSize * generationSettings.backgroundScale,
+      generationSettings.outputSize * generationSettings.backgroundScale,
+    );
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
 }
 
 export function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings) {
@@ -223,12 +225,11 @@ export function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSet
     break;
   }
   case 'CIRCLE': {
-    ctx.ellipse(
-      (generationSettings.outputSize / 2),
-      (generationSettings.outputSize / 2) * (generationSettings.backgroundVerticalPosition/generationSettings.backgroundScale),
-      (generationSettings.outputSize / 2) * generationSettings.backgroundScale - (generationSettings.borderThickness/2),
-      (generationSettings.outputSize / 2) * generationSettings.backgroundScale - (generationSettings.borderThickness/2),
-      0, 0, 2 * Math.PI
+    ctx.arc(
+      generationSettings.outputSize / 2,
+      generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale / 2 * (2 * generationSettings.backgroundVerticalPosition - 1)),
+      generationSettings.outputSize * generationSettings.backgroundScale / 2 - (generationSettings.borderThickness / 2),
+      0, Math.PI * 2
     );
     break;
   }
@@ -238,7 +239,7 @@ export function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSet
       generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition) + (generationSettings.borderThickness/2),
       (generationSettings.outputSize * generationSettings.backgroundScale) - (generationSettings.borderThickness),
       (generationSettings.outputSize * generationSettings.backgroundScale) - (generationSettings.borderThickness),
-      50
+      35
     );
     break;
   }
