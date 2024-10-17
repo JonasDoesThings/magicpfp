@@ -155,6 +155,11 @@ export default function HomePage() {
           </div>
         ) : (generatedVariations != null && generatedVariations.length > 0) ? (
           <div className='flex flex-row items-center justify-center flex-wrap gap-8 gap-y-12 md:gap-8'>
+            <Link href={`/editor?brandColor=${encodeURIComponent(selectedColor)}`}>
+              <div className='w-40 h-40 md:w-48 md:h-48 flex items-center justify-center aspect-square relative font-bold rounded-full border-2 border-dashed border-accent'>
+                <Button className='text-accent font-bold' variant='ghost'>To Editor <ChevronRight size={20} strokeWidth={3} /></Button>
+              </div>
+            </Link>
             {generatedVariations.map((generatedImage) => (
               <div className='w-40 h-40 md:w-48 md:h-48 aspect-square relative group font-bold' key={generatedImage.templateId}>
                 <img className='w-full h-full' src={generatedImage.imageDataUrl} />

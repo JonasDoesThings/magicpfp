@@ -249,9 +249,19 @@ export default function EditorPage() {
     <>
       <main className='flex flex-col md:flex-row p-8 gap-8 items-center justify-center'>
         <div className='w-full max-w-md flex flex-col gap-1.5'>
+          <div className='flex flex-row justify-between bg-accent text-accent-foreground px-6 md:px-3 py-2.5 rounded-md'>
+            <Link href='/' className='flex text-sm flex-row items-center gap-1 hover:text-neutral-100 duration-200 group'>
+              <ChevronLeft size={16} strokeWidth={3} className='inline-block group-hover:animate-wiggle duration-200' />
+              <span>Back to Frontpage</span>
+            </Link>
+            <Link href='mailto:jonas@jonasdoesthings.com' className='flex text-sm flex-row items-center gap-1 hover:text-neutral-100 duration-200 group'>
+              <span>Report an Issue</span>
+              <ChevronRight size={16} strokeWidth={3} className='inline-block group-hover:animate-wiggle duration-200' />
+            </Link>
+          </div>
           <Form watch={watchForm} {...generationSettingsForm}>
             <form onSubmit={generationSettingsForm.handleSubmit((data) => generateImage(data))} className='space-y-1.5'>
-              <div className='border p-6 bg-muted rounded-md space-y-4 [&_input]:bg-background'>
+              <div className='border p-6 pt-3 bg-muted rounded-md space-y-4 [&_input]:bg-background'>
                 <Label className='space-y-2.5'>
                   <span>Picture</span>
                   <Input type='file' onChange={onFileUpload} ref={fileInputRef} />

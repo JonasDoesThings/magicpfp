@@ -10,7 +10,7 @@ import {
 } from '~/components/ui/dialog';
 import ColorPicker from 'react-best-gradient-color-picker';
 import {Button} from '~/components/ui/button';
-import {type PropsWithChildren, Suspense, useEffect, useState} from 'react';
+import {type PropsWithChildren, useEffect, useState} from 'react';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '~/components/ui/tabs';
 import {Input} from '~/components/ui/input';
 import {cn, handleFileUpload} from '~/lib/utils';
