@@ -6,7 +6,7 @@ export const pfpGenerationSettingsSchema = z.object({
   backgroundShape: z.enum(['RECT', 'CIRCLE', 'ROUNDEDRECT']),
   useBackgroundShapeAsImageMask: z.boolean(),
   backgroundVerticalPosition: z.coerce.number().min(0).max(2),
-  backgroundScale: z.coerce.number().min(0).max(1),
+  backgroundScale: z.coerce.number().min(0).max(1.5),
   topMargin: z.coerce.number().min(-1).max(1),
   subjectScale: z.coerce.number().min(0).max(1.5),
   border: z.boolean(),
@@ -152,7 +152,7 @@ export function cssGradientToCanvasGradient(ctx: OffscreenCanvasRenderingContext
   return canvasGradient;
 }
 
-export async function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings, backgroundSettings: {fillStyle: CanvasFillStrokeStyles['fillStyle']}) {
+async function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings, backgroundSettings: {fillStyle: CanvasFillStrokeStyles['fillStyle']}) {
   ctx.save();
   ctx.beginPath();
   ctx.fillStyle = backgroundSettings.fillStyle;
@@ -208,7 +208,7 @@ export async function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2
   ctx.restore();
 }
 
-export function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings) {
+function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSettings: PFPGenerationSettings) {
   if(!generationSettings.border) return;
   ctx.beginPath();
   ctx.lineWidth = generationSettings.borderThickness;
@@ -252,7 +252,7 @@ export function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSet
   ctx.stroke();
 }
 
-export function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, subjectToPaint: ImageBitmap, subjectScale: number, topMargin: number) {
+function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, subjectToPaint: ImageBitmap, subjectScale: number, topMargin: number) {
   const {width, height} = subjectToPaint;
 
   const squareSize = drawingTargetCtx.canvas.width;
@@ -277,7 +277,7 @@ export function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanv
   );
 }
 
-export async function finishCanvas(canvas: OffscreenCanvas, generationSettings: PFPGenerationSettings) {
+async function finishCanvas(canvas: OffscreenCanvas, generationSettings: PFPGenerationSettings) {
   const ctx = canvas.getContext('2d')!;
 
   if(generationSettings.border && generationSettings.borderLayer === 'FOREGROUND') {

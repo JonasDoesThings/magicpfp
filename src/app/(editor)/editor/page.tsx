@@ -1,5 +1,5 @@
 'use client';
-import {Input} from '~/components/ui/input';
+import {Input, PercentageInput} from '~/components/ui/input';
 import {Label} from '~/components/ui/label';
 import {useContext, useEffect, useRef, useState} from 'react';
 import {type EditorState, type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
@@ -297,7 +297,7 @@ export default function EditorPage() {
                             Scale (%)
                             </FormLabel>
                             <FormControl>
-                              <Input type='number' step={0.1} {...field} />
+                              <PercentageInput {...field} />
                             </FormControl>
                             <FormDescription />
                             <FormMessage />
@@ -429,7 +429,7 @@ export default function EditorPage() {
                             Background Scale (%)
                             </FormLabel>
                             <FormControl>
-                              <Input type='number' {...field} />
+                              <PercentageInput {...field} />
                             </FormControl>
                             <FormDescription />
                             <FormMessage />
