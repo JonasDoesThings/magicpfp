@@ -3,7 +3,7 @@
 import '~/styles/globals.css';
 
 import {GeistSans} from 'geist/font/sans';
-import {ProcessedSubjectImagePassingContext} from '~/components/ProcessedSubjectImagePassingContext';
+import {ImagePassingContext} from '~/components/ImagePassingContext';
 import {useState} from 'react';
 
 /* TODO:
@@ -15,12 +15,13 @@ import {useState} from 'react';
 
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
   const [processedSubjectImage, setProcessedSubjectImage] = useState<Blob|undefined>();
+  const [backgroundImage, setBackgroundImage] = useState<string|undefined>();
 
   return (
     <html lang='en' className={`${GeistSans.variable}`}>
-      <ProcessedSubjectImagePassingContext.Provider value={{processedSubjectImage, setProcessedSubjectImage}}>
+      <ImagePassingContext.Provider value={{processedSubjectImage, setProcessedSubjectImage, backgroundImage, setBackgroundImage}}>
         <body>{children}</body>
-      </ProcessedSubjectImagePassingContext.Provider>
+      </ImagePassingContext.Provider>
     </html>
   );
 }

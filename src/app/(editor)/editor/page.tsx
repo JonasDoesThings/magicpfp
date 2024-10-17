@@ -10,20 +10,28 @@ import {
   pfpGenerationSettingsSchema,
 } from '~/lib/imageVariations';
 import {Button} from '~/components/ui/button';
-import {useForm} from 'react-hook-form';
+import {useController, useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from '~/components/ui/form';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '~/components/ui/select';
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '~/components/ui/accordion';
 import {Checkbox} from '~/components/ui/checkbox';
-import {Frame, Image, Loader2, PaintbrushVertical, ScanFace, TriangleAlert} from 'lucide-react';
-import ColorPicker from 'react-best-gradient-color-picker';
-import {Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger} from '~/components/ui/dialog';
+import {
+  ChevronLeft, ChevronRight,
+  Frame,
+  Image,
+  Loader2,
+  PaintbrushVertical,
+  ScanFace,
+  TriangleAlert,
+} from 'lucide-react';
 import {debounce, downloadFileOnClick, handleFileUpload, handleImagePaste} from '~/lib/utils';
 import {editorTemplates} from '~/lib/editorTemplates';
-import {ProcessedSubjectImagePassingContext} from '~/components/ProcessedSubjectImagePassingContext';
+import {ImagePassingContext} from '~/components/ImagePassingContext';
 import {WebGPUSupportInfo} from '~/components/WebGPUSupportInfo';
 import {HRWithText} from '~/components/HRWithText';
+import Link from 'next/link';
+import {BackgroundPickerDialog} from '~/components/BackgroundPickerDialog';
 
 export default function EditorPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -33,7 +41,7 @@ export default function EditorPage() {
   const editorStateRef = useRef<typeof editorState|undefined>();
   editorStateRef.current = editorState;
 
-  const {processedSubjectImage, setProcessedSubjectImage} = useContext(ProcessedSubjectImagePassingContext);
+  const {processedSubjectImage, setProcessedSubjectImage, backgroundImage: passedBackgroundImage} = useContext(ImagePassingContext);
   const [generatedImageDataUrl, setGeneratedImageDataUrl] = useState<string|null>(null);
 
   const worker = useRef<Worker|null>(null);
@@ -41,8 +49,26 @@ export default function EditorPage() {
   const {watch: watchForm, ...generationSettingsForm} = useForm<PFPGenerationSettings>({
     resolver: zodResolver(pfpGenerationSettingsSchema),
     mode: 'all',
-    defaultValues: defaultGenerationSettings,
+    defaultValues: {
+      ...defaultGenerationSettings,
+      backgroundImage: passedBackgroundImage,
+    },
   });
+
+  const {
+    field: {value: brandColor, onChange: onBrandColorChange},
+  } = useController({
+    control: generationSettingsForm.control,
+    name: 'brandColor',
+  });
+
+  const {
+    field: {value: backgroundImage, onChange: onBackgroundImageChange},
+  } = useController({
+    control: generationSettingsForm.control,
+    name: 'backgroundImage',
+  });
+
 
   const generationSettingsFormRef = useRef<typeof generationSettingsForm|undefined>();
   generationSettingsFormRef.current = generationSettingsForm;
@@ -230,29 +256,15 @@ export default function EditorPage() {
                   <span>Picture</span>
                   <Input type='file' onChange={onFileUpload} ref={fileInputRef} />
                 </Label>
-                <FormField
-                  control={generationSettingsForm.control}
-                  name='brandColor'
-                  render={({field}) => (
-                    <FormItem>
-                      <FormLabel className='block'>
-                          Background Color
-                      </FormLabel>
-                      <FormControl>
-                        <Dialog>
-                          <DialogTrigger className='w-full'>
-                            <div className='w-full h-8 rounded-full flex items-center justify-center font-semibold font-mono text-xs text-white' style={{background: field.value}}></div>
-                          </DialogTrigger>
-                          <DialogContent className='px-4 w-auto' withoutCloseButton>
-                            <DialogTitle className='sr-only'>Color Picker</DialogTitle>
-                            <ColorPicker value={field.value} onChange={field.onChange} className='w-full' hideEyeDrop />
-                            <DialogClose asChild><Button className='bg-accent'>Done</Button></DialogClose>
-                          </DialogContent>
-                        </Dialog>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                <FormItem>
+                  <FormLabel>Background</FormLabel>
+                  <FormControl>
+                    <BackgroundPickerDialog preselectedBackgroundColor={brandColor} preselectedBackgroundImage={backgroundImage} onChange={(newBackgroundColor, newBackgroundImage) => {
+                      onBrandColorChange(newBackgroundColor);
+                      onBackgroundImageChange(newBackgroundImage);
+                    }} />
+                  </FormControl>
+                </FormItem>
                 <Button type='submit' className='w-full bg-pink-500' disabled={editorState.state === 'PROCESSING'}>Generate</Button>
                 <WebGPUSupportInfo />
               </div>
@@ -455,20 +467,6 @@ export default function EditorPage() {
                         )}
                       />
                     </div>
-                    <FormField
-                      control={generationSettingsForm.control}
-                      name='backgroundImage'
-                      render={({field}) => (
-                        <FormItem>
-                          <FormLabel>
-                            Background Image
-                          </FormLabel>
-                          <Input type='file' onChange={handleFileUpload(field.onChange)} />
-                          <FormDescription />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                     <FormField
                       control={generationSettingsForm.control}
                       name='useBackgroundShapeAsImageMask'

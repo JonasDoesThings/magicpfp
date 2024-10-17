@@ -4,18 +4,18 @@ import {type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
 import {Input} from '~/components/ui/input';
 import {Label} from '~/components/ui/label';
 import {debounce, handleImagePaste, handleFileUpload, downloadFileOnClick} from '~/lib/utils';
-import {defaultGenerationSettings} from '~/lib/imageVariations';
-import {ColorPickerDialog} from '~/components/ColorPickerDialog';
+import {defaultGenerationSettings, type PFPGenerationSettings} from '~/lib/imageVariations';
 import {Button} from '~/components/ui/button';
 import Link from 'next/link';
 import {editorTemplates} from '~/lib/editorTemplates';
-import {ProcessedSubjectImagePassingContext} from '~/components/ProcessedSubjectImagePassingContext';
-import {Download, Loader2, TriangleAlert} from 'lucide-react';
+import {ImagePassingContext} from '~/components/ImagePassingContext';
+import {ChevronRight, Download, Loader2, TriangleAlert} from 'lucide-react';
 import {WebGPUSupportInfo} from '~/components/WebGPUSupportInfo';
+import {BackgroundPickerDialog} from '~/components/BackgroundPickerDialog';
 
 export default function HomePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const {processedSubjectImage, setProcessedSubjectImage} = useContext(ProcessedSubjectImagePassingContext);
+  const {processedSubjectImage, setProcessedSubjectImage, backgroundImage: selectedBackgroundImage, setBackgroundImage: setsSelectedBackgroundImage} = useContext(ImagePassingContext);
   // todo, use url state
   const [selectedColor, setSelectedColor] = useState('#F1337F');
   const [errorMessage, setErrorMessage] = useState<string|null>(null);
@@ -98,16 +98,17 @@ export default function HomePage() {
   useEffect(() => {
     if(!processedSubjectImage) return;
     generateImages();
-  }, [processedSubjectImage, selectedColor]);
+  }, [processedSubjectImage, selectedColor, selectedBackgroundImage]);
 
   const generateImages = debounce(async () => {
     if(!processedSubjectImage) return;
     console.time('generateImages');
     const processedSubjectImageBitmap = await createImageBitmap(processedSubjectImage);
 
-    const baseGenerationSettings = {
+    const baseGenerationSettings: PFPGenerationSettings = {
       ...defaultGenerationSettings,
       brandColor: selectedColor,
+      backgroundImage: selectedBackgroundImage,
     };
 
     // maybe split-up and process in batches when we add more templates in the future?
@@ -127,14 +128,17 @@ export default function HomePage() {
 
   return (
     <main className='min-h-screen flex flex-col py-8 px-6 md:px-12 items-center justify-center gap-8'>
-      <div className='flex flex-row flex-wrap justify-center gap-5 bg-accent text-white px-6 md:px-3 py-2.5 w-full md:max-w-5xl rounded-2xl'>
+      <div className='flex flex-row flex-wrap justify-center gap-5 bg-accent text-accent-foreground px-6 md:px-3 py-2.5 w-full md:max-w-5xl rounded-2xl'>
         <Label className='flex flex-row items-center gap-1.5'>
           <span>Picture</span>
           <Input type='file' className='w-48 md:w-64' accept={'image/*'} onChange={uploadFile} ref={fileInputRef} />
         </Label>
         <Label className='flex flex-row items-center gap-1.5'>
-          <span className='text-nowrap'>Background Color</span>
-          <ColorPickerDialog value={selectedColor} onChange={setSelectedColor} />
+          <span className='text-nowrap'>Background</span>
+          <BackgroundPickerDialog preselectedBackgroundColor={selectedColor} preselectedBackgroundImage={selectedBackgroundImage} onChange={(backgroundColor, backgroundImage) => {
+            setSelectedColor(backgroundColor);
+            setsSelectedBackgroundImage(backgroundImage);
+          }} />
         </Label>
       </div>
       <div className='flex-grow'>
