@@ -41,7 +41,10 @@ export default function EditorPage() {
   const editorStateRef = useRef<typeof editorState|undefined>();
   editorStateRef.current = editorState;
 
-  const {processedSubjectImage, setProcessedSubjectImage, backgroundImage: passedBackgroundImage} = useContext(ImagePassingContext);
+  const {processedSubjectImage, setProcessedSubjectImage, backgroundImage: passedBackgroundImage, setBackgroundImage: setPassedBackgroundImage} = useContext(ImagePassingContext);
+  const processedSubjectImageRef = useRef<typeof processedSubjectImage|undefined>();
+  processedSubjectImageRef.current = processedSubjectImage;
+
   const [generatedImageDataUrl, setGeneratedImageDataUrl] = useState<string|null>(null);
 
   const worker = useRef<Worker|null>(null);
@@ -79,21 +82,20 @@ export default function EditorPage() {
     worker.current?.postMessage({blobUrl});
   });
 
-  const generateImage = async (generationSettings: PFPGenerationSettings, processedSubjectImage?: Blob) => {
-    const startTime = performance.now();
-
-    console.log('generatingImage', processedSubjectImage);
-    if(!processedSubjectImage && editorState.state === 'DONE') {
-      processedSubjectImage = editorState.processedSubjectImage;
+  const generateImage = async (generationSettings: PFPGenerationSettings, processedSubjectImageToUse?: Blob) => {
+    if(!processedSubjectImageToUse) {
+      processedSubjectImageToUse = processedSubjectImage;
     }
+    console.log('generatingImage', processedSubjectImageToUse);
 
-    if(!processedSubjectImage) {
-      console.warn('no processedSubjectImage');
+    if(!processedSubjectImageToUse) {
+      console.warn('no processedSubjectImageToUse');
       return undefined;
     }
 
+    setGeneratedImageDataUrl(null);
     console.time('generating output');
-    subjectImageBitmap = await createImageBitmap(processedSubjectImage);
+    subjectImageBitmap = await createImageBitmap(processedSubjectImageToUse);
     setGeneratedImageDataUrl(await generateOutputImage(subjectImageBitmap, generationSettings));
     console.timeEnd('generating output');
   };
@@ -137,7 +139,6 @@ export default function EditorPage() {
     if(processedSubjectImage) {
       setEditorState({
         state: 'DONE',
-        processedSubjectImage: processedSubjectImage,
         processingSeconds: 0,
       });
       generationSettingsForm.handleSubmit((data) => generateImage(data, processedSubjectImage))()
@@ -154,6 +155,7 @@ export default function EditorPage() {
     const onMessageReceived = async (evt: MessageEvent<RemoveImgBackgroundWorkerResponse>) => {
       switch (evt.data.state) {
       case 'DONE': {
+        setProcessedSubjectImage(evt.data.processedSubjectImage);
         setEditorState(evt.data);
         await generationSettingsForm.handleSubmit((data) =>
           generateImage(data, (evt.data as {processedSubjectImage: Blob}).processedSubjectImage))();
@@ -219,7 +221,7 @@ export default function EditorPage() {
         .then(async (isValid) => {
           if (!isValid) return;
           if (editorStateRef.current?.state !== 'DONE') return;
-          await generateImage(formData, (editorStateRef.current as {processedSubjectImage: Blob}).processedSubjectImage);
+          await generateImage(formData, processedSubjectImageRef.current);
         })
         .catch((err) => console.error(err));
     });
@@ -270,6 +272,7 @@ export default function EditorPage() {
                   <FormLabel>Background</FormLabel>
                   <FormControl>
                     <BackgroundPickerDialog preselectedBackgroundColor={brandColor} preselectedBackgroundImage={backgroundImage} onChange={(newBackgroundColor, newBackgroundImage) => {
+                      setPassedBackgroundImage(newBackgroundImage);
                       onBrandColorChange(newBackgroundColor);
                       onBackgroundImageChange(newBackgroundImage);
                     }} />

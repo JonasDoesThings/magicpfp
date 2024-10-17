@@ -1,7 +1,7 @@
 export type EditorState =
   {state: 'INITIALIZING'}
   |{state: 'READY'}
-  |{state: 'DONE'; processedSubjectImage: Blob; processingSeconds: number}
+  |{state: 'DONE'; processingSeconds: number}
   |{state: 'PROCESSING'}
   |{state: 'ERROR'; errorMessage: string}
 
