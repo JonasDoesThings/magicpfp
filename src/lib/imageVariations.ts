@@ -7,7 +7,9 @@ export const pfpGenerationSettingsSchema = z.object({
   useBackgroundShapeAsImageMask: z.boolean(),
   backgroundVerticalPosition: z.coerce.number().min(0).max(2),
   backgroundScale: z.coerce.number().min(0).max(1.5),
-  topMargin: z.coerce.number().min(-1).max(1),
+  subjectTopMargin: z.coerce.number().min(-2).max(2),
+  subjectLeftMargin: z.coerce.number().min(-2).max(2),
+  subjectRotation: z.coerce.number().min(-360).max(360).default(0),
   subjectScale: z.coerce.number().min(0).max(1.5),
   border: z.boolean(),
   borderLayer: z.enum(['BACKGROUND', 'FOREGROUND']),
@@ -48,10 +50,33 @@ export async function generateOutputImage(subject: ImageBitmap, generationSettin
 
   if(filters.length > 0) ctx.filter = filters.join(' ');
 
-  drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.topMargin);
+  drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.subjectTopMargin, generationSettings.subjectLeftMargin, generationSettings.subjectRotation);
   ctx.restore();
 
+  //ctx.font = '90pt Calibri';
+  //ctx.textAlign = 'center';
+  //ctx.fillStyle = 'black';
+  //drawTextAlongArc(ctx, '#OpenToWork', generationSettings.outputSize / 2, generationSettings.outputSize / 2, generationSettings.outputSize / 2 - 100, Math.PI * 0.5);
+
   return finishCanvas(canvas, generationSettings);
+}
+
+function drawTextAlongArc(context: OffscreenCanvasRenderingContext2D, str: string, centerX: number, centerY: number, radius: number, angle: number) {
+  const len = str.length;
+  let s: string|undefined;
+  context.save();
+  context.translate(centerX, centerY);
+  context.rotate(-1 * angle / 2);
+  context.rotate(-1 * (angle / len) / 2);
+  for(let n = 0; n < len; n++) {
+    context.rotate(angle / len);
+    context.save();
+    context.translate(0, -1 * radius);
+    s = str[n];
+    context.fillText(s ?? '', 0, 0);
+    context.restore();
+  }
+  context.restore();
 }
 
 export const defaultGenerationSettings: PFPGenerationSettings = {
@@ -61,17 +86,19 @@ export const defaultGenerationSettings: PFPGenerationSettings = {
   backgroundVerticalPosition: 1,
   brandColor: '#F1337F',
   subjectScale: 0.95,
-  topMargin: 0,
+  subjectTopMargin: 0,
+  subjectLeftMargin: 0,
   border: false,
-  borderLayer: 'FOREGROUND',
+  borderLayer: 'BACKGROUND',
   borderColor: 'black',
-  borderThickness: 40,
+  borderThickness: 33,
   outputFormat: 'image/png',
   outputSize: 1024,
   subjectSaturation: 100,
   subjectContrast: 100,
   subjectBrightness: 100,
   subjectShadow: false,
+  subjectRotation: 0,
 };
 
 export const pfpGenerationSettingsUrlParsingSchema = Object.fromEntries(Object.entries(pfpGenerationSettingsSchema.shape).map(([key, valueShape]) => ([key, ((() => {
@@ -252,29 +279,47 @@ function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSettings: 
   ctx.stroke();
 }
 
-function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, subjectToPaint: ImageBitmap, subjectScale: number, topMargin: number) {
+function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, subjectToPaint: ImageBitmap, subjectScale: number, subjectTopMargin: number, subjectLeftMargin: number, rotationDegrees: number) {
   const {width, height} = subjectToPaint;
 
   const squareSize = drawingTargetCtx.canvas.width;
 
+  // Calculate the scaling factor to maintain aspect ratio
   const scale = Math.min(squareSize / width, squareSize / height) * subjectScale;
   const newWidth = width * scale;
   const newHeight = height * scale;
 
-  // Calculate offset to center the image in the square canvas
-  const xOffset = (squareSize - newWidth) / 2;
+  // Calculate offset to center the image horizontally and vertically
+  const xOffset = (squareSize - newWidth) / 2 + (subjectLeftMargin * squareSize / 2);
+  const yOffset = squareSize - newHeight - (subjectTopMargin * squareSize / 2);
 
-  // Draw the image onto the square canvas, preserving aspect ratio and centering it
+  // Save the current state of the canvas before applying transformations
+  drawingTargetCtx.save();
+
+  // Move the origin to the center of the image for rotation
+  drawingTargetCtx.translate(xOffset + newWidth / 2, yOffset + newHeight / 2);
+
+  // Rotate the canvas around the new origin (image center)
+  drawingTargetCtx.rotate(rotationDegrees * (Math.PI / 180));
+
+  // Move the canvas back to the top-left corner of where the image should be drawn
+  drawingTargetCtx.translate(-newWidth / 2, -newHeight / 2);
+
+  // Draw the image onto the rotated canvas
   drawingTargetCtx.drawImage(
     subjectToPaint,
     0,
-    -(topMargin * (squareSize / 2)),
+    0,  // Use 0 for the source Y since we're handling all the positioning on the canvas side
     width,
     height,
-    xOffset,
-    squareSize - newHeight,
-    newWidth, newHeight
+    0,
+    0,
+    newWidth,
+    newHeight
   );
+
+  // Restore the canvas state to undo the translation and rotation
+  drawingTargetCtx.restore();
 }
 
 async function finishCanvas(canvas: OffscreenCanvas, generationSettings: PFPGenerationSettings) {

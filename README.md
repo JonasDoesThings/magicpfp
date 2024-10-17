@@ -1,7 +1,12 @@
 # pfpMagic
-## TODO
+## TODO - Before 1.0.0
+* Add badge function (like linkedin #OpenForWork)
+* Write README
+* Add LICENSE
+* Domain
+
+## TODO - After 1.0.0
 * Add Setting for Border to trace Subject instead of Background Shape
-* Add Setting to Rotate Subject
-* Evaluate adding a way to move subject around easily
-* Add Setting for choosing preset background images / patterns
+* Evaluate adding a way to move subject around more easily (drag & drop)
 * Add hint for Safari Users that Subject Filters don't work
+* Add border radius for rounded rect as setting

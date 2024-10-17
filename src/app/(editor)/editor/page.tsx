@@ -309,11 +309,43 @@ export default function EditorPage() {
                       />
                       <FormField
                         control={generationSettingsForm.control}
-                        name='topMargin'
+                        name='subjectRotation'
+                        render={({field}) => (
+                          <FormItem>
+                            <FormLabel>
+                            Rotation
+                            </FormLabel>
+                            <FormControl>
+                              <Input type='number' {...field} />
+                            </FormControl>
+                            <FormDescription />
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={generationSettingsForm.control}
+                        name='subjectTopMargin'
                         render={({field}) => (
                           <FormItem>
                             <FormLabel>
                             Top Margin
+                            </FormLabel>
+                            <FormControl>
+                              <Input type='number' {...field} />
+                            </FormControl>
+                            <FormDescription />
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={generationSettingsForm.control}
+                        name='subjectLeftMargin'
+                        render={({field}) => (
+                          <FormItem>
+                            <FormLabel>
+                            Left Margin
                             </FormLabel>
                             <FormControl>
                               <Input type='number' {...field} />

@@ -73,6 +73,36 @@ export const editorTemplates: Record<string, {
     }),
     generate: defaultGenerateFunction,
   },
+  'default-black-and-white': {
+    templateGenerationSettingsOverwrites: {
+      subjectSaturation: 0,
+      subjectContrast: 115,
+    },
+    generate: defaultGenerateFunction,
+  },
+  'gradient-bg-img': {
+    templateGenerationSettingsOverwrites: {
+      backgroundImage: editorTemplateImages['vincent-maufay-DoMslaDppHk-unsplash.jpg'].data,
+    },
+    generate: defaultGenerateFunction,
+  },
+  'rotated-subject': {
+    templateGenerationSettingsOverwrites: {
+      subjectRotation: 14,
+      subjectScale: 0.85,
+      subjectLeftMargin: -0.01,
+      subjectTopMargin: -0.01,
+      backgroundScale: 0.7,
+    },
+    generate: defaultGenerateFunction,
+  },
+  'smaller-square-bg': {
+    templateGenerationSettingsOverwrites: {
+      backgroundShape: 'RECT',
+      backgroundScale: 0.7,
+    },
+    generate: defaultGenerateFunction,
+  },
   'multiple-hollow-rings': {
     templateGenerationSettingsOverwrites: (generationSettings) => ({
       backgroundScale: 1,
@@ -92,26 +122,6 @@ export const editorTemplates: Record<string, {
         ${tinycolor(generationSettings.brandColor).toRgbString()} 100%
       )`,
     }),
-    generate: defaultGenerateFunction,
-  },
-  'default-black-and-white': {
-    templateGenerationSettingsOverwrites: {
-      subjectSaturation: 0,
-      subjectContrast: 115,
-    },
-    generate: defaultGenerateFunction,
-  },
-  'smaller-square-bg': {
-    templateGenerationSettingsOverwrites: {
-      backgroundShape: 'RECT',
-      backgroundScale: 0.7,
-    },
-    generate: defaultGenerateFunction,
-  },
-  'gradient-bg-img': {
-    templateGenerationSettingsOverwrites: {
-      backgroundImage: editorTemplateImages['vincent-maufay-DoMslaDppHk-unsplash.jpg'].data,
-    },
     generate: defaultGenerateFunction,
   },
 };
