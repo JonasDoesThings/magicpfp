@@ -3,6 +3,7 @@ import {
   type PFPGenerationSettings,
   generateOutputImage,
 } from '~/lib/imageVariations';
+import editorTemplateImages from '~/lib/editorTemplateImages';
 
 const RGBA_WHITE = 'rgba(255, 255, 255, 1)';
 
@@ -104,6 +105,12 @@ export const editorTemplates: Record<string, {
     templateGenerationSettingsOverwrites: {
       backgroundShape: 'RECT',
       backgroundScale: 0.7,
+    },
+    generate: defaultGenerateFunction,
+  },
+  'gradient-bg-img': {
+    templateGenerationSettingsOverwrites: {
+      backgroundImage: editorTemplateImages['vincent-maufay-DoMslaDppHk-unsplash.jpg'].data,
     },
     generate: defaultGenerateFunction,
   },

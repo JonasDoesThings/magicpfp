@@ -16,6 +16,7 @@ import {Input} from '~/components/ui/input';
 import {cn, handleFileUpload} from '~/lib/utils';
 import {Trash} from 'lucide-react';
 import dynamic from 'next/dynamic';
+import {Label} from '~/components/ui/label';
 
 const TemplateImagePicker = dynamic(() => import('../components/TemplateImagePicker'));
 
@@ -46,7 +47,7 @@ export function BackgroundPickerDialog({preselectedBackgroundColor, preselectedB
           />
         ) : null}
       </DialogTrigger>
-      <DialogContent className='px-4 w-auto flex flex-col min-h-96' withoutCloseButton>
+      <DialogContent className='px-4 w-[90vw] md:w-auto flex flex-col min-h-96' withoutCloseButton>
         <DialogTitle className='sr-only'>Background Picker</DialogTitle>
         <DialogDescription className='sr-only'>
           Pick a background
@@ -66,7 +67,7 @@ export function BackgroundPickerDialog({preselectedBackgroundColor, preselectedB
             <ColorPicker
               value={backgroundColor}
               onChange={setBackgroundColor}
-              className='w-full'
+              className='w-full mx-auto'
               hideEyeDrop
               presets={[
                 'rgba(0,0,0,1)',
@@ -90,14 +91,23 @@ export function BackgroundPickerDialog({preselectedBackgroundColor, preselectedB
               ]}
             />
           </TabsContent>
-          <TabsContent value='IMAGE' className='space-y-2'>
-            <div className='flex flex-row gap-3'>
-              <Input className='' type='file' accept={'image/*'} onChange={handleFileUpload(setBackgroundImage)} />
-              <Button className='flex-shrink' variant='outline' onClick={() => setBackgroundImage(undefined)}>
-                <Trash size={20} strokeWidth={2.5} />
-              </Button>
+          <TabsContent value='IMAGE' className='space-y-4 pt-2'>
+            <div>
+              <Label>
+                <p className='mb-2 font-bold'>Use your own Image</p>
+                <div className='flex flex-row items-center justify-center gap-3 pl-2'>
+                  <Input type='file' accept={'image/*'} onChange={handleFileUpload(setBackgroundImage)} />
+                  <Button className='flex-shrink' variant='outline' onClick={() => setBackgroundImage(undefined)}>
+                    <Trash size={20} strokeWidth={2.5} />
+                  </Button>
+                </div>
+              </Label>
+              <p className='text-gray-400 pl-2 mt-1 text-xs'><span className='font-bold'>Selected Images never leave your device</span>, they are processed locally in your browser and not stored.</p>
             </div>
-            <TemplateImagePicker onChange={setBackgroundImage} />
+            <Label className='inline-block'>
+              <p className='mb-2 font-bold'>Or chose an Image</p>
+              <TemplateImagePicker className='pl-2' onChange={setBackgroundImage} />
+            </Label>
           </TabsContent>
         </Tabs>
         <DialogClose asChild><Button className='bg-accent' onClick={() => onChange?.(backgroundColor, backgroundImage)}>Done</Button></DialogClose>
