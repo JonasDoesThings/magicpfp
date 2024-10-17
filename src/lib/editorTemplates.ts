@@ -100,4 +100,11 @@ export const editorTemplates: Record<string, {
     },
     generate: defaultGenerateFunction,
   },
+  'smaller-square-bg': {
+    templateGenerationSettingsOverwrites: {
+      backgroundShape: 'RECT',
+      backgroundScale: 0.7,
+    },
+    generate: defaultGenerateFunction,
+  },
 };
