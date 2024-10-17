@@ -128,18 +128,24 @@ export default function HomePage() {
 
   return (
     <main className='min-h-screen flex flex-col py-8 px-6 md:px-12 items-center justify-center gap-8'>
-      <div className='flex flex-row flex-wrap justify-center gap-5 bg-accent text-accent-foreground px-6 md:px-3 py-2.5 w-full md:max-w-5xl rounded-2xl'>
-        <Label className='flex flex-row items-center gap-1.5'>
-          <span>Picture</span>
-          <Input type='file' className='w-48 md:w-64' accept={'image/*'} onChange={uploadFile} ref={fileInputRef} />
-        </Label>
-        <Label className='flex flex-row items-center gap-1.5'>
-          <span className='text-nowrap'>Background</span>
-          <BackgroundPickerDialog preselectedBackgroundColor={selectedColor} preselectedBackgroundImage={selectedBackgroundImage} onChange={(backgroundColor, backgroundImage) => {
-            setSelectedColor(backgroundColor);
-            setsSelectedBackgroundImage(backgroundImage);
-          }} />
-        </Label>
+      <div>
+        <div className='flex flex-row flex-wrap justify-center gap-5 bg-accent text-accent-foreground px-6 md:px-3 py-2.5 w-full md:max-w-5xl rounded-2xl'>
+          <Label className='flex flex-row items-center gap-1.5'>
+            <span>Picture</span>
+            <Input type='file' className='w-48 md:w-64' accept={'image/*'} onChange={uploadFile} ref={fileInputRef} />
+          </Label>
+          <Label className='flex flex-row items-center gap-1.5'>
+            <span className='text-nowrap'>Background</span>
+            <BackgroundPickerDialog
+              preselectedBackgroundColor={selectedColor}
+              preselectedBackgroundImage={selectedBackgroundImage}
+              onChange={(backgroundColor, backgroundImage) => {
+                setSelectedColor(backgroundColor);
+                setsSelectedBackgroundImage(backgroundImage);
+              }} />
+          </Label>
+        </div>
+        <p className='text-gray-400 mt-1 text-xs'><span className='font-bold'>Selected Images never leave your device</span>, they are processed locally in your browser and are not stored.</p>
       </div>
       <div className='flex-grow'>
         {errorMessage ? (

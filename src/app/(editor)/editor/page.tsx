@@ -264,10 +264,13 @@ export default function EditorPage() {
           <Form watch={watchForm} {...generationSettingsForm}>
             <form onSubmit={generationSettingsForm.handleSubmit((data) => generateImage(data))} className='space-y-1.5'>
               <div className='border p-6 pt-3 bg-muted rounded-md space-y-4 [&_input]:bg-background'>
-                <Label className='space-y-2.5'>
-                  <span>Picture</span>
-                  <Input type='file' onChange={onFileUpload} ref={fileInputRef} />
-                </Label>
+                <div>
+                  <Label className='space-y-2.5'>
+                    <span>Picture</span>
+                    <Input type='file' onChange={onFileUpload} ref={fileInputRef} />
+                  </Label>
+                  <p className='text-gray-400 mt-1 text-xs'><span className='font-bold'>Selected Images never leave your device</span>, they are processed locally in your browser and are not stored.</p>
+                </div>
                 <FormItem>
                   <FormLabel>Background</FormLabel>
                   <FormControl>

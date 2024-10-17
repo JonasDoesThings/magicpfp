@@ -102,7 +102,7 @@ export function BackgroundPickerDialog({preselectedBackgroundColor, preselectedB
                   </Button>
                 </div>
               </Label>
-              <p className='text-gray-400 pl-2 mt-1 text-xs'><span className='font-bold'>Selected Images never leave your device</span>, they are processed locally in your browser and not stored.</p>
+              <p className='text-gray-400 pl-2 mt-1 text-xs'><span className='font-bold'>Selected Images never leave your device</span>, they are processed locally in your browser and are not stored.</p>
             </div>
             <Label className='inline-block'>
               <p className='mb-2 font-bold'>Or chose an Image</p>
