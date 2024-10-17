@@ -93,7 +93,6 @@ export default function EditorPage() {
       return undefined;
     }
 
-    setGeneratedImageDataUrl(null);
     console.time('generating output');
     subjectImageBitmap = await createImageBitmap(processedSubjectImageToUse);
     setGeneratedImageDataUrl(await generateOutputImage(subjectImageBitmap, generationSettings));
@@ -156,6 +155,7 @@ export default function EditorPage() {
       switch (evt.data.state) {
       case 'DONE': {
         setProcessedSubjectImage(evt.data.processedSubjectImage);
+        setGeneratedImageDataUrl(null);
         setEditorState(evt.data);
         await generationSettingsForm.handleSubmit((data) =>
           generateImage(data, (evt.data as {processedSubjectImage: Blob}).processedSubjectImage))();
