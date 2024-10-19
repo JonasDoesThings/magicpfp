@@ -28,6 +28,7 @@ export const pfpGenerationSettingsSchema = z.object({
   badgeBackgroundColor: z.string().trim().min(0),
   badgeTextColor: z.string().trim().min(0),
   badgeTextLetterSpacing: z.coerce.number().min(0).max(2),
+  badgeTextBold: z.boolean(),
 });
 
 export type PFPGenerationSettings = z.infer<typeof pfpGenerationSettingsSchema>
@@ -76,7 +77,7 @@ function drawBadge(ctx: OffscreenCanvasRenderingContext2D, text: string, generat
   const centerY = canvas.height - radius - paddingY; // shift up slightly to fit the arc
   const lineWidth = radius * 0.175; // arc thickness
   const fontSize = lineWidth * 0.9;
-  ctx.font = `bold ${fontSize}px ${GeistSans.style.fontFamily}`; // Set font size based on arc thickness
+  ctx.font = `${generationSettings.badgeTextBold ? 'bold ': ' '}${fontSize}px ${GeistSans.style.fontFamily}`; // Set font size based on arc thickness
 
   let totalTextWidth = 0;
   for (const char of text) {
@@ -168,6 +169,7 @@ export const defaultGenerationSettings: PFPGenerationSettings = {
   badgeBackgroundColor: '#446E2E',
   badgeTextColor: '#FFFFFF',
   badgeTextLetterSpacing: 1.05,
+  badgeTextBold: true,
 };
 
 export const pfpGenerationSettingsUrlParsingSchema = Object.fromEntries(Object.entries(pfpGenerationSettingsSchema.shape).map(([key, valueShape]) => ([key, ((() => {

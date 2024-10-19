@@ -664,6 +664,25 @@ export default function EditorPage() {
                             </FormItem>
                           )}
                         />
+                        <FormField
+                          control={generationSettingsForm.control}
+                          name='badgeTextBold'
+                          render={({field}) => (
+                            <FormItem className='mt-1'>
+                              <FormLabel className='flex flex-row items-center space-y-0 gap-1.5'>
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                                Bold Font
+                              </FormLabel>
+                              <FormDescription />
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                         <div className='md:grid md:grid-cols-2 gap-2 w-full'>
                           <FormField
                             control={generationSettingsForm.control}
@@ -777,7 +796,7 @@ export default function EditorPage() {
             </div>
           ) : (editorState.state === 'DONE' && generatedImageDataUrl != null) ? (
             <div className='text-center'>
-              <img src={generatedImageDataUrl} className='w-96 h-auto aspect-square mx-auto' alt='generated output image' />
+              <img src={generatedImageDataUrl} className='w-96 2xl:w-[30rem] h-auto aspect-square mx-auto' alt='generated output image' />
               <div className='mt-4 mx-auto'>
                 <Button className='bg-accent text-accent-foreground' size='sm' onClick={downloadFileOnClick(generatedImageDataUrl)}>Download Image</Button>
               </div>
