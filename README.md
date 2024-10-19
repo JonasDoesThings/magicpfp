@@ -1,6 +1,5 @@
 # pfpMagic
 ## TODO - Before 1.0.0
-* Add badge function (like linkedin #OpenForWork)
 * Write README
 * Domain
 

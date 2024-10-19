@@ -17,6 +17,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '~/c
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '~/components/ui/accordion';
 import {Checkbox} from '~/components/ui/checkbox';
 import {
+  Award,
   ChevronLeft, ChevronRight,
   Frame,
   Image,
@@ -76,6 +77,7 @@ export default function EditorPage() {
   const generationSettingsFormRef = useRef<typeof generationSettingsForm|undefined>();
   generationSettingsFormRef.current = generationSettingsForm;
   const isBorderEnabled = watchForm('border');
+  const isBadgeEnabled = watchForm('badgeEnabled');
 
   let subjectImageBitmap: ImageBitmap | null = null;
   const onFileUpload = handleFileUpload((blobUrl) => {
@@ -611,6 +613,100 @@ export default function EditorPage() {
                                 </FormLabel>
                                 <FormControl>
                                   <Input type='number' {...field} />
+                                </FormControl>
+                                <FormDescription />
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </>
+                    ) : null}
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value='badge'>
+                  <AccordionTrigger><span className='flex flex-row items-center gap-2 font-bold'><Award className='stroke-accent' size={24} /> Badge</span></AccordionTrigger>
+                  <AccordionContent className='space-y-2'>
+                    <FormField
+                      control={generationSettingsForm.control}
+                      name='badgeEnabled'
+                      render={({field}) => (
+                        <FormItem className='mt-1'>
+                          <FormLabel className='flex flex-row items-center space-y-0 gap-1.5'>
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            Add Badge
+                          </FormLabel>
+                          <FormDescription />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {isBadgeEnabled ? (
+                      <>
+                        <FormField
+                          control={generationSettingsForm.control}
+                          name='badgeText'
+                          render={({field}) => (
+                            <FormItem>
+                              <FormLabel>
+                            Badge Text
+                              </FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormDescription />
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className='md:grid md:grid-cols-2 gap-2 w-full'>
+                          <FormField
+                            control={generationSettingsForm.control}
+                            name='badgeBackgroundColor'
+                            render={({field}) => (
+                              <FormItem>
+                                <FormLabel>
+                                Background Color
+                                </FormLabel>
+                                <FormControl>
+                                  <Input type='color' {...field} />
+                                </FormControl>
+                                <FormDescription />
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={generationSettingsForm.control}
+                            name='badgeTextColor'
+                            render={({field}) => (
+                              <FormItem>
+                                <FormLabel>
+                                Text Color
+                                </FormLabel>
+                                <FormControl>
+                                  <Input type='color' {...field} />
+                                </FormControl>
+                                <FormDescription />
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={generationSettingsForm.control}
+                            name='badgeTextLetterSpacing'
+                            render={({field}) => (
+                              <FormItem>
+                                <FormLabel>
+                                  Letter Spacing
+                                </FormLabel>
+                                <FormControl>
+                                  <Input type='number' step={0.1} {...field} />
                                 </FormControl>
                                 <FormDescription />
                                 <FormMessage />

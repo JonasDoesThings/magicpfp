@@ -1,5 +1,6 @@
 import {z, ZodBoolean, ZodEnum, ZodNumber} from 'zod';
 import {parseAsBoolean, parseAsFloat, parseAsInteger, parseAsString, parseAsStringEnum} from 'nuqs';
+import {GeistSans} from 'geist/font/sans';
 
 export const pfpGenerationSettingsSchema = z.object({
   brandColor: z.string(),
@@ -22,6 +23,11 @@ export const pfpGenerationSettingsSchema = z.object({
   subjectBrightness: z.coerce.number().min(0).max(200).default(100),
   subjectShadow: z.boolean().default(false),
   backgroundImage: z.string().optional(),
+  badgeEnabled: z.boolean().default(false),
+  badgeText: z.string(),
+  badgeBackgroundColor: z.string().trim().min(0),
+  badgeTextColor: z.string().trim().min(0),
+  badgeTextLetterSpacing: z.coerce.number().min(0).max(2),
 });
 
 export type PFPGenerationSettings = z.infer<typeof pfpGenerationSettingsSchema>
@@ -53,30 +59,88 @@ export async function generateOutputImage(subject: ImageBitmap, generationSettin
   drawImageToCanvasRespectingRatio(ctx, subject, generationSettings.subjectScale, generationSettings.subjectTopMargin, generationSettings.subjectLeftMargin, generationSettings.subjectRotation);
   ctx.restore();
 
-  //ctx.font = '90pt Calibri';
-  //ctx.textAlign = 'center';
-  //ctx.fillStyle = 'black';
-  //drawTextAlongArc(ctx, '#OpenToWork', generationSettings.outputSize / 2, generationSettings.outputSize / 2, generationSettings.outputSize / 2 - 100, Math.PI * 0.5);
+  if(generationSettings.badgeEnabled) {
+    drawBadge(ctx, generationSettings.badgeText, generationSettings);
+  }
 
   return finishCanvas(canvas, generationSettings);
 }
 
-function drawTextAlongArc(context: OffscreenCanvasRenderingContext2D, str: string, centerX: number, centerY: number, radius: number, angle: number) {
-  const len = str.length;
-  let s: string|undefined;
-  context.save();
-  context.translate(centerX, centerY);
-  context.rotate(-1 * angle / 2);
-  context.rotate(-1 * (angle / len) / 2);
-  for(let n = 0; n < len; n++) {
-    context.rotate(angle / len);
-    context.save();
-    context.translate(0, -1 * radius);
-    s = str[n];
-    context.fillText(s ?? '', 0, 0);
-    context.restore();
+function drawBadge(ctx: OffscreenCanvasRenderingContext2D, text: string, generationSettings: PFPGenerationSettings) {
+  ctx.save();
+  const canvas = ctx.canvas;
+  const paddingY = 10;
+  const radius = canvas.width / 2 - paddingY;
+
+  const centerX = radius + paddingY; // shift right slightly to fit the arc
+  const centerY = canvas.height - radius - paddingY; // shift up slightly to fit the arc
+  const lineWidth = radius * 0.175; // arc thickness
+  const fontSize = lineWidth * 0.9;
+  ctx.font = `bold ${fontSize}px ${GeistSans.style.fontFamily}`; // Set font size based on arc thickness
+
+  let totalTextWidth = 0;
+  for (const char of text) {
+    totalTextWidth += ctx.measureText(char).width * generationSettings.badgeTextLetterSpacing;
   }
-  context.restore();
+
+  const angularPadding = 1.5;
+  const totalAngularWidth = (totalTextWidth / radius) * angularPadding;
+
+  const bottomLeftCenter = (2*Math.PI) - (Math.PI/180)*225;
+  const startAngle = bottomLeftCenter - totalAngularWidth / 2;
+  const endAngle = bottomLeftCenter + totalAngularWidth / 2;
+
+  const gradient = ctx.createConicGradient(
+    bottomLeftCenter,
+    ctx.canvas.width / 2,
+    ctx.canvas.height / 2,
+  );
+
+  const startAngleInGradient = Math.abs(startAngle-bottomLeftCenter)/(Math.PI*2);
+  const endAngleInGradient = 1-Math.abs(endAngle-bottomLeftCenter)/(Math.PI*2);
+
+  gradient.addColorStop(0, generationSettings.badgeBackgroundColor);
+  gradient.addColorStop(startAngleInGradient, generationSettings.badgeBackgroundColor);
+  gradient.addColorStop(startAngleInGradient+0.05, 'rgba(255, 255, 255, 0.1)');
+  gradient.addColorStop(startAngleInGradient+0.1, 'rgba(255, 255, 255, 0)');
+  gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+  gradient.addColorStop(endAngleInGradient-0.05, 'rgba(255, 255, 255, 0.1)');
+  gradient.addColorStop(endAngleInGradient-0.1, 'rgba(255, 255, 255, 0.0)');
+  gradient.addColorStop(endAngleInGradient, generationSettings.badgeBackgroundColor);
+  gradient.addColorStop(1, generationSettings.badgeBackgroundColor);
+
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, startAngle-1, endAngle+1, false);
+  ctx.lineWidth = lineWidth * 2.5;
+  ctx.strokeStyle = gradient;
+  ctx.stroke();
+  ctx.closePath();
+
+  ctx.fillStyle = generationSettings.badgeTextColor;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const textRadius = radius - lineWidth / 2;
+  let currentAngle = (startAngle + endAngle) / 2 - totalAngularWidth/(2 + Math.cos(angularPadding % 1));
+  text = text.split('').reverse().join('');
+  for(const char of text) {
+    const charWidth = ctx.measureText(char).width * generationSettings.badgeTextLetterSpacing;
+    const charAngle = (charWidth / textRadius);
+
+    const x = centerX + textRadius * Math.cos(currentAngle + charAngle / 2);
+    const y = centerY + textRadius * Math.sin(currentAngle + charAngle / 2);
+    const rotation = currentAngle + charAngle / 2 + Math.PI / 2;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    ctx.scale(-1, -1);
+    ctx.fillText(char, 0, 0);
+    ctx.restore();
+
+    currentAngle += charAngle;
+  }
+  ctx.restore();
 }
 
 export const defaultGenerationSettings: PFPGenerationSettings = {
@@ -99,6 +163,11 @@ export const defaultGenerationSettings: PFPGenerationSettings = {
   subjectBrightness: 100,
   subjectShadow: false,
   subjectRotation: 0,
+  badgeEnabled: false,
+  badgeText: '#SMALLAI',
+  badgeBackgroundColor: '#446E2E',
+  badgeTextColor: '#FFFFFF',
+  badgeTextLetterSpacing: 1.05,
 };
 
 export const pfpGenerationSettingsUrlParsingSchema = Object.fromEntries(Object.entries(pfpGenerationSettingsSchema.shape).map(([key, valueShape]) => ([key, ((() => {
