@@ -124,4 +124,11 @@ export const editorTemplates: Record<string, {
     }),
     generate: defaultGenerateFunction,
   },
+  'small-ai-badge': {
+    templateGenerationSettingsOverwrites: (generationSettings) => ({
+      badgeEnabled: true,
+      badgeText: '#SmallAI',
+    }),
+    generate: defaultGenerateFunction,
+  },
 };
