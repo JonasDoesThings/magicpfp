@@ -17,7 +17,7 @@ class ModelProcessorSingleton {
 
   static async getInstance() {
     if (this.instance === null) {
-      const doesSupportWebGPU = 'gpu' in navigator;
+      const doesSupportWebGPU = false;
       let doesSupportFP16 = false;
       try {
         const gpuAdapter = doesSupportWebGPU ? (await navigator.gpu.requestAdapter()) : null;
@@ -26,7 +26,7 @@ class ModelProcessorSingleton {
 
       // Using experimental transformers.js v3 alpha with WebGPU Support (https://github.com/xenova/transformers.js/pull/545)
       const model = await AutoModel.from_pretrained('briaai/RMBG-1.4', {
-        device: doesSupportWebGPU ? 'cpu' : undefined,
+        device: 'wasm',
         dtype: doesSupportFP16 ? 'fp16' : 'fp32', // TODO: what's the REAL difference for our use?
         // @ts-expect-error additional config options not needed
         config: {
