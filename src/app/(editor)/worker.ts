@@ -55,7 +55,7 @@ class ModelProcessorSingleton {
   }
 }
 
-function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 48) {
+function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 0) {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Could not get 2D context.');
 
