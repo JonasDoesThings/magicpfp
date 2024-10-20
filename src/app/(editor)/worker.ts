@@ -17,27 +17,36 @@ class ModelProcessorSingleton {
 
   static async getInstance() {
     if (this.instance === null) {
+      const doesSupportWebGPU = 'gpu' in navigator;
+      let doesSupportFP16 = false;
+      try {
+        const gpuAdapter = doesSupportWebGPU ? (await navigator.gpu.requestAdapter()) : null;
+        if(gpuAdapter?.features.has('shader-f16')) doesSupportFP16 = true;
+      } catch (e) {}
+
       // Using experimental transformers.js v3 alpha with WebGPU Support (https://github.com/xenova/transformers.js/pull/545)
       const model = await AutoModel.from_pretrained('briaai/RMBG-1.4', {
-        device: ('gpu' in navigator) ? 'webgpu' : undefined,
-        dtype: 'fp16', // fp16 or fp32, TODO: what's the REAL difference for our use?
+        device: doesSupportWebGPU ? 'webgpu' : undefined,
+        dtype: doesSupportFP16 ? 'fp16' : 'fp32', // TODO: what's the REAL difference for our use?
+        // @ts-expect-error additional config options not needed
+        config: {
+          model_type: 'custom',
+        },
       });
 
       const processor = await AutoProcessor.from_pretrained('briaai/RMBG-1.4', {
-        // Do not require config.json to be present in the repository
-        // TODO: do I need this???
-        // config: {
-        //   do_normalize: true,
-        //   do_pad: false,
-        //   do_rescale: true,
-        //   do_resize: true,
-        //   image_mean: [0.5, 0.5, 0.5],
-        //   feature_extractor_type: "ImageFeatureExtractor",
-        //   image_std: [1, 1, 1],
-        //   resample: 2,
-        //   rescale_factor: 0.00392156862745098,
-        //   size: { width: 1024, height: 1024 },
-        // }
+        config: {
+          do_normalize: true,
+          do_pad: false,
+          do_rescale: true,
+          do_resize: true,
+          image_mean: [0.5, 0.5, 0.5],
+          feature_extractor_type: 'ImageFeatureExtractor',
+          image_std: [1, 1, 1],
+          resample: 2,
+          rescale_factor: 0.00392156862745098,
+          size: {width: 1024, height: 1024},
+        } as never, // ignore type error
       });
 
       this.instance = [model, processor];
