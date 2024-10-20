@@ -7,7 +7,7 @@ The project features a [rich editor](https://magicpfp.com/editor) to customize p
 
 <a href="https://www.buymeacoffee.com/JonasDoesThings" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
-![magicpfp screenshot](./public/magicpfp-screenshots.png)
+![magicpfp screenshot](./public/og-image.png)
 
 ## Develop
 ⚠️ Check out the `dev` branch! Development happens on the `dev` branch! ⚠️
