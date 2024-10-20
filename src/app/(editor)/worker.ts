@@ -20,7 +20,7 @@ class ModelProcessorSingleton {
       // Using experimental transformers.js v3 alpha with WebGPU Support (https://github.com/xenova/transformers.js/pull/545)
       const model = await AutoModel.from_pretrained('briaai/RMBG-1.4', {
         device: ('gpu' in navigator) ? 'webgpu' : undefined,
-        dtype: 'fp32', // or fp16, TODO: what's the difference?
+        dtype: 'fp16', // fp16 or fp32, TODO: what's the REAL difference for our use?
       });
 
       const processor = await AutoProcessor.from_pretrained('briaai/RMBG-1.4', {
