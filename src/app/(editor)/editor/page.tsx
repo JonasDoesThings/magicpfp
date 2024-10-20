@@ -18,7 +18,7 @@ import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '~/co
 import {Checkbox} from '~/components/ui/checkbox';
 import {
   Award,
-  ChevronLeft, ChevronRight,
+  ChevronLeft,
   Frame,
   Image,
   Loader2,
@@ -242,8 +242,9 @@ export default function EditorPage() {
           <span className='text-accent font-bold text-lg'>Setting-Up local AI-Model</span>
         </div>
         <p className='absolute bottom-2 text-xs'>
-          Powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
-          Made my <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>GitHub</a>
+          made by <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>github</a><br />
+          powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
+          report an issue <a className='underline' href='mailto:contact@magicpfp.com' target='_blank'>via mail</a> or <a className='underline' href='https://github.com/JonasDoesThings/magicpfp/issues' target='_blank'>on github</a>
         </p>
       </main>
     );
@@ -258,9 +259,11 @@ export default function EditorPage() {
               <ChevronLeft size={16} strokeWidth={3} className='inline-block group-hover:animate-wiggle duration-200' />
               <span>Back to Frontpage</span>
             </Link>
-            <Link href='mailto:jonas@jonasdoesthings.com' className='flex text-sm flex-row items-center gap-1 hover:text-neutral-100 duration-200 group'>
-              <span>Report an Issue</span>
-              <ChevronRight size={16} strokeWidth={3} className='inline-block group-hover:animate-wiggle duration-200' />
+            <Link href='/' className='flex text-lg font-bold flex-row items-center gap-1 hover:text-neutral-100 duration-200 group'>
+              <h1>
+                magicpfp.com
+                <ScanFace className='inline ml-1 group-hover:animate-wiggle duration-200' size={26} strokeWidth={3} />
+              </h1>
             </Link>
           </div>
           <Form watch={watchForm} {...generationSettingsForm}>
@@ -825,16 +828,20 @@ export default function EditorPage() {
           )}
         </div>
       </main>
-      <footer className='px-8'>
+      <footer className='px-8 pb-12'>
         <div className='mt-2.5'>
           {editorState.state === 'DONE' ? (
             <p className='text-xs font-mono mb-1.5'>bg removal
               took {editorState.processingSeconds.toLocaleString(undefined, {maximumFractionDigits: 2})}s</p>
           ) : null}
           <p className='text-sm'>
-            Powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
-            Made my <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>GitHub</a>
+            made by <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>github</a><br />
+            powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
+            report an issue <a className='underline' href='mailto:contact@magicpfp.com' target='_blank'>via mail</a> or <a className='underline' href='https://github.com/JonasDoesThings/magicpfp/issues' target='_blank'>on github</a>
           </p>
+          <a className='buy-me-a-coffee-button mt-2' href='https://www.buymeacoffee.com/jonasdoesthings' target='_blank' rel='nofollow' title='Support my Work'>
+            <span className='mr-2'>🍵</span>Buy Me A Coffee
+          </a>
         </div>
       </footer>
     </>

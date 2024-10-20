@@ -63,4 +63,13 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  .buy-me-a-coffee-button {
+    @apply bg-accent text-accent-foreground rounded-md inline-block duration-300;
+    @apply py-2 px-3;
+  }
+
+  .buy-me-a-coffee-button:hover {
+    filter: brightness(125%);
+  }
 }
