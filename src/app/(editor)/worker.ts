@@ -26,7 +26,7 @@ class ModelProcessorSingleton {
 
       // Using experimental transformers.js v3 alpha with WebGPU Support (https://github.com/xenova/transformers.js/pull/545)
       const model = await AutoModel.from_pretrained('briaai/RMBG-1.4', {
-        device: doesSupportWebGPU ? 'webgpu' : undefined,
+        device: doesSupportWebGPU ? 'cpu' : undefined,
         dtype: doesSupportFP16 ? 'fp16' : 'fp32', // TODO: what's the REAL difference for our use?
         // @ts-expect-error additional config options not needed
         config: {
@@ -55,7 +55,7 @@ class ModelProcessorSingleton {
   }
 }
 
-function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 0) {
+function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 48) {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Could not get 2D context.');
 
