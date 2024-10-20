@@ -718,6 +718,22 @@ export default function EditorPage() {
                           />
                           <FormField
                             control={generationSettingsForm.control}
+                            name='badgeFontSize'
+                            render={({field}) => (
+                              <FormItem>
+                                <FormLabel>
+                                  Font Size
+                                </FormLabel>
+                                <FormControl>
+                                  <Input type='number' step={3} {...field} />
+                                </FormControl>
+                                <FormDescription />
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={generationSettingsForm.control}
                             name='badgeTextLetterSpacing'
                             render={({field}) => (
                               <FormItem>
