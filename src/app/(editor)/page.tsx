@@ -209,6 +209,7 @@ export default function HomePage() {
           </div>
         ) : null}
       </div>
+      <WebGPUSupportInfo />
       <footer className='px-8'>
         <p className='text-sm'>
           made by <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>github</a><br />
@@ -219,7 +220,6 @@ export default function HomePage() {
           <span className='mr-2'>🍵</span>Buy Me A Coffee
         </a>
       </footer>
-      <WebGPUSupportInfo />
     </main>
   );
 }

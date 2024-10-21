@@ -16,5 +16,5 @@ export function WebGPUSupportInfo() {
   if (typeof window === 'undefined') return null;
   if ('gpu' in navigator) return null;
 
-  return <span className='text-xs'>Your Browser does not support WebGPU. Processing will be slower.</span>;
+  return <span className='text-xs text-red-600'>Your Browser does not support WebGPU. Processing will be slower.</span>;
 }
