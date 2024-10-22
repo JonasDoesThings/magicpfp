@@ -24,7 +24,6 @@ class ModelProcessorSingleton {
         if(gpuAdapter?.features.has('shader-f16')) doesSupportFP16 = true;
       } catch (e) {}
 
-      // Using experimental transformers.js v3 alpha with WebGPU Support (https://github.com/xenova/transformers.js/pull/545)
       const model = await AutoModel.from_pretrained('briaai/RMBG-1.4', {
         device: doesSupportWebGPU ? 'webgpu' : undefined,
         dtype: doesSupportFP16 ? 'fp16' : 'fp32', // TODO: what's the REAL difference for our use?
