@@ -8,7 +8,6 @@ import {
 import {type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
 
 env.backends.onnx.wasm!.proxy = false; // already in a worker
-env.backends.onnx.wasm!.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.1/dist/';
 env.backends.onnx.wasm!.numThreads = 1;
 env.backends.onnx.debug = true;
 
@@ -19,7 +18,6 @@ class ModelProcessorSingleton {
   static async getInstance() {
     if (this.instance === null) {
       env.backends.onnx.wasm!.proxy = false; // already in a worker
-      env.backends.onnx.wasm!.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.1/dist/';
       env.backends.onnx.wasm!.numThreads = 1;
       env.backends.onnx.debug = true;
 
