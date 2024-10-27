@@ -133,7 +133,7 @@ export default function HomePage() {
     canvas.style.width = '100%';
     canvas.style.objectFit = 'contain';
     const offscreen = canvas.transferControlToOffscreen();
-    worker.current?.postMessage({blobUrl: evt.currentTarget.src, canvas: offscreen});
+    worker.current?.postMessage({blobUrl: evt.currentTarget.src, canvas: offscreen}, [offscreen]);
     setErrorMessage(null);
   };
 
