@@ -111,7 +111,7 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
 
   // Create new canvas
   const canvas = new OffscreenCanvas(image.width, image.height);
-  const ctx = canvas.getContext('2d', {willReadFrequently: true});
+  const ctx = canvas.getContext('2d');
   if(!ctx) throw new Error('failed rendering');
 
   // Draw original image output to canvas
