@@ -125,14 +125,15 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   }
   ctx.putImageData(pixelData, 0, 0);
 
-  const croppedSubject = trimOffscreenCanvas(canvas);
+  //const croppedSubject = trimOffscreenCanvas(canvas);
   // Send the output back to the main thread
   self.postMessage({
     state: 'DONE',
     //originalImageDataUrl: evt.data.blobUrl,
     //processedSubject: await croppedSubject.convertToBlob(),
     processingSeconds: (performance.now() - startTime) / 1000,
-    processedSubjectImage: await croppedSubject.convertToBlob(),
+    //processedSubjectImage: await croppedSubject.convertToBlob(),
+    processedSubjectImage: await canvas.convertToBlob(),
   } satisfies RemoveImgBackgroundWorkerResponse);
 };
 
