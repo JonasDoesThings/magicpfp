@@ -3,9 +3,14 @@ import {
   AutoProcessor,
   RawImage,
   type Processor,
-  type PreTrainedModel, type Tensor,
+  type PreTrainedModel, type Tensor, env,
 } from '@huggingface/transformers';
 import {type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
+
+env.backends.onnx.wasm!.proxy = false; // already in a worker
+env.backends.onnx.wasm!.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.1/dist/';
+env.backends.onnx.wasm!.numThreads = 1;
+env.backends.onnx.debug = true;
 
 // Use the Singleton pattern to enable lazy construction of the pipeline.
 class ModelProcessorSingleton {
@@ -13,6 +18,11 @@ class ModelProcessorSingleton {
 
   static async getInstance() {
     if (this.instance === null) {
+      env.backends.onnx.wasm!.proxy = false; // already in a worker
+      env.backends.onnx.wasm!.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.1/dist/';
+      env.backends.onnx.wasm!.numThreads = 1;
+      env.backends.onnx.debug = true;
+
       const doesSupportWebGPU = 'gpu' in navigator;
       let doesSupportFP16 = false;
       try {
