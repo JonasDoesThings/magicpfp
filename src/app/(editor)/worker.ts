@@ -86,7 +86,7 @@ function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 48) {
   return trimmedCanvas;
 }
 
-const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor: string; horizontalPadding: number}>) => {
+const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor: string; horizontalPadding: number; canvas: OffscreenCanvas}>) => {
   const startTime = performance.now();
 
   postMessage({
@@ -118,8 +118,8 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   const mask = await RawImage.fromTensor(output[0].mul(255).to('uint8')).resize(image.width, image.height);
 
   // Create new canvas
-  const canvas = new OffscreenCanvas(image.width, image.height);
-  const ctx = canvas.getContext('2d');
+  //const canvas = new OffscreenCanvas(image.width, image.height);
+  const ctx = evt.data.canvas.getContext('2d');
   if(!ctx) throw new Error('failed rendering');
 
   // Draw original image output to canvas
@@ -133,15 +133,14 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   }
   ctx.putImageData(pixelData, 0, 0);
 
-  //const croppedSubject = trimOffscreenCanvas(canvas);
+  const croppedSubject = trimOffscreenCanvas(evt.data.canvas);
   // Send the output back to the main thread
   self.postMessage({
     state: 'DONE',
     //originalImageDataUrl: evt.data.blobUrl,
     //processedSubject: await croppedSubject.convertToBlob(),
     processingSeconds: (performance.now() - startTime) / 1000,
-    //processedSubjectImage: await croppedSubject.convertToBlob(),
-    processedSubjectImage: await canvas.convertToBlob(),
+    processedSubjectImage: await croppedSubject.convertToBlob(),
   } satisfies RemoveImgBackgroundWorkerResponse);
 };
 
