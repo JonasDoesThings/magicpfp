@@ -2,14 +2,10 @@ import {
   AutoModel,
   AutoProcessor,
   RawImage,
-  env,
   type Processor,
   type PreTrainedModel, type Tensor,
 } from '@huggingface/transformers';
 import {type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
-
-// Since we will download the model from the Hugging Face Hub, we can skip the local model check
-env.allowLocalModels = false;
 
 // Use the Singleton pattern to enable lazy construction of the pipeline.
 class ModelProcessorSingleton {
