@@ -128,12 +128,7 @@ export default function HomePage() {
 
   const loadExampleImage = (evt: MouseEvent<HTMLImageElement>) => {
     if(!evt.currentTarget.src.startsWith('data:image')) throw new Error('example image must use image base64 as src');
-    const canvas = document.createElement('canvas');
-    canvas.style.height = '100%';
-    canvas.style.width = '100%';
-    canvas.style.objectFit = 'contain';
-    const offscreen = canvas.transferControlToOffscreen();
-    worker.current?.postMessage({blobUrl: evt.currentTarget.src, canvas: offscreen}, [offscreen]);
+    worker.current?.postMessage({blobUrl: evt.currentTarget.src});
     setErrorMessage(null);
   };
 

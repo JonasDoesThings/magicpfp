@@ -7,9 +7,8 @@ import {
 } from '@huggingface/transformers';
 import {type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
 
-env.backends.onnx.wasm!.proxy = false; // already in a worker
-env.backends.onnx.wasm!.numThreads = 1;
-env.backends.onnx.debug = true;
+env.backends.onnx.webgpu!.validateInputContent = true;
+env.backends.onnx.webgpu!.powerPreference = 'high-performance';
 
 // Use the Singleton pattern to enable lazy construction of the pipeline.
 class ModelProcessorSingleton {
@@ -17,10 +16,6 @@ class ModelProcessorSingleton {
 
   static async getInstance() {
     if (this.instance === null) {
-      env.backends.onnx.wasm!.proxy = false; // already in a worker
-      env.backends.onnx.wasm!.numThreads = 1;
-      env.backends.onnx.debug = true;
-
       const doesSupportWebGPU = 'gpu' in navigator;
       let doesSupportFP16 = false;
       try {
@@ -86,7 +81,7 @@ function trimOffscreenCanvas(canvas: OffscreenCanvas, alphaThreshold = 48) {
   return trimmedCanvas;
 }
 
-const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor: string; horizontalPadding: number; canvas: OffscreenCanvas}>) => {
+const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor: string; horizontalPadding: number}>) => {
   const startTime = performance.now();
 
   postMessage({
@@ -118,8 +113,8 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   const mask = await RawImage.fromTensor(output[0].mul(255).to('uint8')).resize(image.width, image.height);
 
   // Create new canvas
-  //const canvas = new OffscreenCanvas(image.width, image.height);
-  const ctx = evt.data.canvas.getContext('2d');
+  const canvas = new OffscreenCanvas(image.width, image.height);
+  const ctx = canvas.getContext('2d');
   if(!ctx) throw new Error('failed rendering');
 
   // Draw original image output to canvas
@@ -133,7 +128,7 @@ const onMessageReceived = async (evt: MessageEvent<{blobUrl: string; brandColor:
   }
   ctx.putImageData(pixelData, 0, 0);
 
-  const croppedSubject = trimOffscreenCanvas(evt.data.canvas);
+  const croppedSubject = trimOffscreenCanvas(canvas);
   // Send the output back to the main thread
   self.postMessage({
     state: 'DONE',
