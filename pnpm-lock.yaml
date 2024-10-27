@@ -9,8 +9,8 @@ dependencies:
     specifier: ^3.9.0
     version: 3.9.0(react-hook-form@7.53.0)
   '@huggingface/transformers':
-    specifier: 3.0.0
-    version: 3.0.0
+    specifier: 3.0.1
+    version: 3.0.1
   '@radix-ui/react-accordion':
     specifier: ^1.2.1
     version: 1.2.1(@types/react-dom@18.3.0)(@types/react@18.3.11)(react-dom@18.3.1)(react@18.3.1)
@@ -484,12 +484,12 @@ packages:
     engines: {node: '>=18'}
     dev: false
 
-  /@huggingface/transformers@3.0.0:
-    resolution: {integrity: sha512-OWIPnTijAw4DQ+IFHBOrej2SDdYyykYlTtpTLCEt5MZq/e9Cb65RS2YVhdGcgbaW/6JAL3i8ZA5UhDeWGm4iRQ==}
+  /@huggingface/transformers@3.0.1:
+    resolution: {integrity: sha512-lXmF0/p+ZdQX0NKTybLUCzIKr0sKD6BfqtjL7olaLx2JHAM3HKVrvFjWeFe2lQRkhL6cEcFw2WXs7o8nZU/WGg==}
     dependencies:
       '@huggingface/jinja': 0.3.1
       onnxruntime-node: 1.19.2
-      onnxruntime-web: 1.20.0-dev.20241016-2b8fc5529b
+      onnxruntime-web: 1.21.0-dev.20241024-d9ca84ef96
       sharp: 0.33.5
     dev: false
 
@@ -4028,8 +4028,8 @@ packages:
       tar: 7.4.3
     dev: false
 
-  /onnxruntime-web@1.20.0-dev.20241016-2b8fc5529b:
-    resolution: {integrity: sha512-1XovqtgqeEFtupuyzdDQo7Tqj4GRyNHzOoXjapCEo4rfH3JrXok5VtqucWfRXHPsOI5qoNxMQ9VE+drDIp6woQ==}
+  /onnxruntime-web@1.21.0-dev.20241024-d9ca84ef96:
+    resolution: {integrity: sha512-ANSQfMALvCviN3Y4tvTViKofKToV1WUb2r2VjZVCi3uUBPaK15oNJyIxhsNyEckBr/Num3JmSXlkHOD8HfVzSQ==}
     dependencies:
       flatbuffers: 1.12.0
       guid-typescript: 1.0.9
