@@ -155,6 +155,7 @@ export default function HomePage() {
           </div>
         </div>
         <p className='text-gray-400 mt-1 text-xs'><span className='font-bold'>Selected Images never leave your device</span>, they are processed locally in your browser and are not stored.</p>
+        <p className='text-gray-400 mt-1 text-xs'>Loading the AI-Model for the first time inflicts around 180 MB of data usage.</p>
       </div>
       <div className='flex-grow flex flex-col justify-center'>
         {errorMessage ? (
