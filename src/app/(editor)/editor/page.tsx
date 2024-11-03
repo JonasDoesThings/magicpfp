@@ -78,6 +78,7 @@ export default function EditorPage() {
   generationSettingsFormRef.current = generationSettingsForm;
   const isBorderEnabled = watchForm('border');
   const isBadgeEnabled = watchForm('badgeEnabled');
+  const backgroundShape = watchForm('backgroundShape');
 
   let subjectImageBitmap: ImageBitmap | null = null;
   const onFileUpload = handleFileUpload((blobUrl) => {
@@ -522,6 +523,24 @@ export default function EditorPage() {
                           </FormItem>
                         )}
                       />
+                      {backgroundShape === 'ROUNDEDRECT' ? (
+                        <FormField
+                          control={generationSettingsForm.control}
+                          name='backgroundRoundedRectBorderRadius'
+                          render={({field}) => (
+                            <FormItem>
+                              <FormLabel>
+                              Rect Border Radius (%)
+                              </FormLabel>
+                              <FormControl>
+                                <Input type='number' step={0.1} max={1} min={0} {...field} />
+                              </FormControl>
+                              <FormDescription />
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      ) : null}
                     </div>
                     <FormField
                       control={generationSettingsForm.control}
