@@ -533,7 +533,7 @@ export default function EditorPage() {
                               Rect Border Radius (%)
                               </FormLabel>
                               <FormControl>
-                                <Input type='number' step={0.1} max={1} min={0} {...field} />
+                                <PercentageInput {...field} />
                               </FormControl>
                               <FormDescription />
                               <FormMessage />
