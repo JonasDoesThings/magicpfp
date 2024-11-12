@@ -136,7 +136,7 @@ export default function HomePage() {
     <main className='min-h-screen flex flex-col py-8 px-6 md:px-12 items-center justify-center gap-8'>
       <div>
         <div className='bg-accent text-accent-foreground px-6 md:px-3 py-2.5 w-full md:max-w-5xl rounded-md'>
-          <a href='/'><h1 className='font-bold text-2xl text-center mb-2'><ScanFace className='inline' size={30} strokeWidth={3} /> magicpfp.com</h1></a>
+          <Link href='/'><h1 className='font-bold text-2xl text-center mb-2'><ScanFace className='inline' size={30} strokeWidth={3} /> magicpfp.com</h1></Link>
           <div className='flex flex-row flex-wrap justify-center gap-5'>
             <Label className='flex flex-row items-center gap-1.5'>
               <span>Picture</span>
