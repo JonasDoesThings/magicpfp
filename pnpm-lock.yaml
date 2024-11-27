@@ -9,8 +9,8 @@ dependencies:
     specifier: ^3.9.1
     version: 3.9.1(react-hook-form@7.53.2)
   '@huggingface/transformers':
-    specifier: 3.0.2
-    version: 3.0.2
+    specifier: 3.1.0
+    version: 3.1.0
   '@radix-ui/react-accordion':
     specifier: ^1.2.1
     version: 1.2.1(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1)(react@18.3.1)
@@ -481,12 +481,12 @@ packages:
     engines: {node: '>=18'}
     dev: false
 
-  /@huggingface/transformers@3.0.2:
-    resolution: {integrity: sha512-lTyS81eQazMea5UCehDGFMfdcNRZyei7XQLH5X6j4AhA/18Ka0+5qPgMxUxuZLU4xkv60aY2KNz9Yzthv6WVJg==}
+  /@huggingface/transformers@3.1.0:
+    resolution: {integrity: sha512-NeaZk/KBBrvy8v8gvRBE5bficnn1a9cKJDJlgr9jv+fcEiqsgqt5Mh7LKKuLxeO/bFtLppFceJVwM9gbUQyLnA==}
     dependencies:
       '@huggingface/jinja': 0.3.2
-      onnxruntime-node: 1.19.2
-      onnxruntime-web: 1.21.0-dev.20241024-d9ca84ef96
+      onnxruntime-node: 1.20.1
+      onnxruntime-web: 1.20.1
       sharp: 0.33.5
     dev: false
 
@@ -3996,30 +3996,26 @@ packages:
       mimic-fn: 4.0.0
     dev: true
 
-  /onnxruntime-common@1.19.2:
-    resolution: {integrity: sha512-a4R7wYEVFbZBlp0BfhpbFWqe4opCor3KM+5Wm22Az3NGDcQMiU2hfG/0MfnBs+1ZrlSGmlgWeMcXQkDk1UFb8Q==}
+  /onnxruntime-common@1.20.1:
+    resolution: {integrity: sha512-YiU0s0IzYYC+gWvqD1HzLc46Du1sXpSiwzKb63PACIJr6LfL27VsXSXQvt68EzD3V0D5Bc0vyJTjmMxp0ylQiw==}
     dev: false
 
-  /onnxruntime-common@1.20.0-dev.20241016-2b8fc5529b:
-    resolution: {integrity: sha512-KZK8b6zCYGZFjd4ANze0pqBnqnFTS3GIVeclQpa2qseDpXrCQJfkWBixRcrZShNhm3LpFOZ8qJYFC5/qsJK9WQ==}
-    dev: false
-
-  /onnxruntime-node@1.19.2:
-    resolution: {integrity: sha512-9eHMP/HKbbeUcqte1JYzaaRC8JPn7ojWeCeoyShO86TOR97OCyIyAIOGX3V95ErjslVhJRXY8Em/caIUc0hm1Q==}
+  /onnxruntime-node@1.20.1:
+    resolution: {integrity: sha512-di/I4HDXRw+FLgq+TyHmQEDd3cEp9iFFZm0r4uJ1Wd7b/WE1VXtKWo8yemex347c6GNF/3Pv86ZfPhIWxORr0w==}
     os: [win32, darwin, linux]
     requiresBuild: true
     dependencies:
-      onnxruntime-common: 1.19.2
+      onnxruntime-common: 1.20.1
       tar: 7.4.3
     dev: false
 
-  /onnxruntime-web@1.21.0-dev.20241024-d9ca84ef96:
-    resolution: {integrity: sha512-ANSQfMALvCviN3Y4tvTViKofKToV1WUb2r2VjZVCi3uUBPaK15oNJyIxhsNyEckBr/Num3JmSXlkHOD8HfVzSQ==}
+  /onnxruntime-web@1.20.1:
+    resolution: {integrity: sha512-TePF6XVpLL1rWVMIl5Y9ACBQcyCNFThZON/jgElNd9Txb73CIEGlklhYR3UEr1cp5r0rbGI6nDwwrs79g7WjoA==}
     dependencies:
       flatbuffers: 1.12.0
       guid-typescript: 1.0.9
       long: 5.2.3
-      onnxruntime-common: 1.20.0-dev.20241016-2b8fc5529b
+      onnxruntime-common: 1.20.1
       platform: 1.3.6
       protobufjs: 7.4.0
     dev: false
