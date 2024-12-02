@@ -20,8 +20,16 @@ class ModelProcessorSingleton {
         if(gpuAdapter?.features.has('shader-f16')) doesSupportFP16 = true;
       } catch (e) {}
 
+      // I can't really pinpoint the issue, but on mobile the device must be `wasm` for the image processing to work-out,
+      // else the output is bugged-out with transparency and artifacts.
+      // See GitHub Issue #7 (https://github.com/JonasDoesThings/magicpfp/issues/7) for details.
+      // Evaluate if we can remove this when WebGPU support is further advanced... Not sure what's causing this.
+      const isOnMobile = (typeof navigator !== 'undefined') && ('userAgentData' in navigator)
+        ? (navigator as {userAgentData: {mobile?: boolean}}).userAgentData?.mobile
+        : /Mobi|Android/i.test(navigator.userAgent);
+
       const model = await AutoModel.from_pretrained('briaai/RMBG-1.4', {
-        device: doesSupportWebGPU ? 'webgpu' : undefined,
+        device: isOnMobile ? 'wasm' : doesSupportWebGPU ? 'webgpu' : undefined,
         dtype: doesSupportFP16 ? 'fp16' : 'fp32', // TODO: what's the REAL difference for our use?
         // @ts-expect-error additional config options not needed
         config: {
