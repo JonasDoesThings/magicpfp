@@ -16,6 +16,7 @@ class ModelProcessorSingleton {
 
   static async getInstance() {
     if (this.instance === null) {
+      const isOnMobile = typeof screen.orientation !== 'undefined';
       const doesSupportWebGPU = 'gpu' in navigator;
       let doesSupportFP16 = false;
       try {
@@ -24,7 +25,7 @@ class ModelProcessorSingleton {
       } catch (e) {}
 
       const model = await AutoModel.from_pretrained('briaai/RMBG-1.4', {
-        device: doesSupportWebGPU ? 'webgpu' : undefined,
+        device: isOnMobile ? 'wasm' : doesSupportWebGPU ? 'webgpu' : undefined,
         dtype: doesSupportFP16 ? 'fp16' : 'fp32', // TODO: what's the REAL difference for our use?
         // @ts-expect-error additional config options not needed
         config: {
