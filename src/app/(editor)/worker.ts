@@ -16,7 +16,9 @@ class ModelProcessorSingleton {
 
   static async getInstance() {
     if (this.instance === null) {
-      const isOnMobile = typeof screen.orientation !== 'undefined';
+      const isOnMobile = (typeof navigator !== 'undefined') && ('userAgentData' in navigator)
+        ? (navigator as {userAgentData: {mobile?: boolean}}).userAgentData?.mobile
+        : /Mobi|Android/i.test(navigator.userAgent);
       const doesSupportWebGPU = 'gpu' in navigator;
       let doesSupportFP16 = false;
       try {
