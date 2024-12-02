@@ -6,6 +6,7 @@ export const pfpGenerationSettingsSchema = z.object({
   brandColor: z.string(),
   backgroundShape: z.enum(['RECT', 'CIRCLE', 'ROUNDEDRECT']),
   useBackgroundShapeAsImageMask: z.boolean(),
+  backgroundRoundedRectBorderRadius: z.coerce.number().min(0).max(1),
   backgroundVerticalPosition: z.coerce.number().min(0).max(2),
   backgroundScale: z.coerce.number().min(0).max(1.5),
   subjectTopMargin: z.coerce.number().min(-2).max(2),
@@ -149,6 +150,7 @@ export const defaultGenerationSettings: PFPGenerationSettings = {
   backgroundScale: 1,
   backgroundShape: 'CIRCLE',
   useBackgroundShapeAsImageMask: true,
+  backgroundRoundedRectBorderRadius: 0.15,
   backgroundVerticalPosition: 1,
   brandColor: '#F1337F',
   subjectScale: 0.95,
@@ -293,7 +295,7 @@ async function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, gene
       (generationSettings.outputSize - generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition) + (72 / (Math.PI*4)),
       generationSettings.outputSize * generationSettings.backgroundScale,
       generationSettings.outputSize * generationSettings.backgroundScale,
-      72
+      generationSettings.backgroundRoundedRectBorderRadius * (generationSettings.outputSize/2),
     );
   } else if(generationSettings.backgroundShape === 'RECT') {
     ctx.rect(
@@ -339,7 +341,7 @@ function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSettings: 
       generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition) + (generationSettings.borderThickness/2),
       (generationSettings.outputSize * generationSettings.backgroundScale) - (generationSettings.borderThickness),
       (generationSettings.outputSize * generationSettings.backgroundScale) - (generationSettings.borderThickness),
-      35
+      Math.max(0, generationSettings.backgroundRoundedRectBorderRadius * (generationSettings.outputSize/2) - (generationSettings.borderThickness/2)),
     );
     break;
   }
@@ -412,7 +414,13 @@ async function finishCanvas(canvas: OffscreenCanvas, generationSettings: PFPGene
     } else if(generationSettings.backgroundShape === 'ROUNDEDRECT') {
       ctx.globalCompositeOperation = 'destination-in';
       ctx.beginPath();
-      ctx.roundRect(0, 0, generationSettings.outputSize, generationSettings.outputSize, 72);
+      ctx.roundRect(
+        0,
+        0,
+        generationSettings.outputSize,
+        generationSettings.outputSize,
+        generationSettings.backgroundRoundedRectBorderRadius * (generationSettings.outputSize/2)
+      );
       ctx.closePath();
       ctx.fill();
     }

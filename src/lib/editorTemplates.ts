@@ -131,4 +131,12 @@ export const editorTemplates: Record<string, {
     }),
     generate: defaultGenerateFunction,
   },
+  'rounded-rect-bg': {
+    templateGenerationSettingsOverwrites: {
+      backgroundShape: 'ROUNDEDRECT',
+      backgroundRoundedRectBorderRadius: 0.25,
+      backgroundScale: 0.75,
+    },
+    generate: defaultGenerateFunction,
+  },
 };
