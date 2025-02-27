@@ -93,7 +93,7 @@ export default function ImageBackgroundRemoverPage() {
     setErrorMessage(null);
   };
 
-  const isHeaderExpanded = !(isProcessing || processedSubjectImageDataUrl || errorMessage);
+  const isHeaderExpanded = (!isProcessing && !errorMessage && !processedSubjectImageDataUrl);
 
   return (
     <>
