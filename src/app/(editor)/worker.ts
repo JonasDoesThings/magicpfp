@@ -148,6 +148,7 @@ self.addEventListener('message', (evt: MessageEvent) => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   onMessageReceived(evt)
     .catch((err) => {
+      console.error(err);
       self.postMessage({
         state: 'ERROR',
         errorMessage: (err as Error).message,
