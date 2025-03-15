@@ -107,7 +107,7 @@ export default function ImageBackgroundRemoverPage() {
             <Link href='#'><p className='font-bold text-3xl text-center my-2'><ScanFace className='inline' size={34} strokeWidth={3} /> magicpfp.com</p></Link>
             <div className='flex flex-row flex-wrap justify-center gap-5 mt-4'>
               <Label>
-                <p className='block font-bold mb-1 text-center'>Upload a Picture</p>
+                <p className='block font-bold mb-1 text-center'>Select a Picture</p>
                 <Input type='file' className='w-48 md:w-64' accept={'image/*'} onChange={uploadFile} ref={fileInputRef} />
               </Label>
             </div>
