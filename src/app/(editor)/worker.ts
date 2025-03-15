@@ -28,6 +28,7 @@ class ModelProcessorSingleton {
         ? (navigator as {userAgentData: {mobile?: boolean}}).userAgentData?.mobile
         : /Mobi|Android/i.test(navigator.userAgent);
 
+      // TODO: use RMBG-2.0 (see https://github.com/huggingface/transformers.js/issues/1107)
       const model = await AutoModel.from_pretrained('briaai/RMBG-1.4', {
         device: isOnMobile ? 'wasm' : doesSupportWebGPU ? 'webgpu' : undefined,
         dtype: doesSupportFP16 ? 'fp16' : 'fp32', // TODO: what's the REAL difference for our use?
