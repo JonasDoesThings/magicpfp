@@ -104,7 +104,8 @@ export default function ImageBackgroundRemoverPage() {
               <ChevronLeft size={16} strokeWidth={3} className='inline-block group-hover:animate-wiggle duration-200' />
               <span>Back to Profile Pic Editor</span>
             </Link>
-            <Link href='#'><p className='font-bold text-3xl text-center my-2'><ScanFace className='inline' size={34} strokeWidth={3} /> magicpfp.com</p></Link>
+            <Link href='#'><p className='font-bold text-3xl text-center mt-2'><ScanFace className='inline' size={34} strokeWidth={3} /> magicpfp.com</p></Link>
+            <p className='text-center text-lg font-bold mb-2'>photo background remover</p>
             <div className='flex flex-row flex-wrap justify-center gap-5 mt-4'>
               <Label>
                 <p className='block font-bold mb-1 text-center'>Select a Picture</p>
