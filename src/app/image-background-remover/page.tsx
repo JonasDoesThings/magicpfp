@@ -8,6 +8,7 @@ import {Button} from '~/components/ui/button';
 import Link from 'next/link';
 import {ChevronLeft, Download, Loader2, ScanFace, TriangleAlert} from 'lucide-react';
 import {WebGPUSupportInfo} from '~/components/WebGPUSupportInfo';
+import {OtherToolsListFooter} from '~/components/OtherToolsFooter';
 
 export default function ImageBackgroundRemoverPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -182,6 +183,7 @@ export default function ImageBackgroundRemoverPage() {
           <p>Try our <span className='font-bold'>free open source background remover</span> today and experience the perfect balance of simplicity, privacy, and professional results - all without signing up or uploading your precious images anywhere. Join thousands of satisfied users who have discovered that premium-quality background removal doesn't need to come with premium prices or privacy compromises.</p>
         </div>
       </section>
+      <OtherToolsListFooter />
     </>
   );
 }
