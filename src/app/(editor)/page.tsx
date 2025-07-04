@@ -12,6 +12,7 @@ import {ImagePassingContext} from '~/components/ImagePassingContext';
 import {ChevronRight, Download, Loader2, ScanFace, TriangleAlert} from 'lucide-react';
 import {WebGPUSupportInfo} from '~/components/WebGPUSupportInfo';
 import {BackgroundPickerDialog} from '~/components/BackgroundPickerDialog';
+import {OtherToolsListFooter} from '~/components/OtherToolsFooter';
 
 export default function HomePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -244,6 +245,7 @@ export default function HomePage() {
           <p>Try our <span className='font-bold'>free open source / FOSS profile photo generator</span> and experience the perfect balance of simplicity, privacy, and professional results - all without signing up or uploading your images anywhere. Join all the existing users who have discovered that premium-quality profile pictures don't need to come with premium prices or privacy compromises.</p>
         </div>
       </section>
+      <OtherToolsListFooter />
     </>
   );
 }
