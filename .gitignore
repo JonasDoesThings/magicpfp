@@ -21,6 +21,9 @@ next-env.d.ts
 # production
 /build
 
+# asset source files
+public/*.psd
+
 # misc
 .DS_Store
 *.pem
