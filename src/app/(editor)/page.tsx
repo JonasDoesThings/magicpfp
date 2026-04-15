@@ -1,5 +1,5 @@
 'use client';
-import {type MouseEvent, useContext, useEffect, useRef, useState} from 'react';
+import {type ChangeEvent, type MouseEvent, useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
 import {Input} from '~/components/ui/input';
 import {Label} from '~/components/ui/label';
@@ -24,12 +24,14 @@ export default function HomePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [generatedVariations, setGeneratedVariations] = useState<({templateId: string; imageDataUrl: string}[])|null>(null);
 
-  const uploadFile = handleFileUpload((blobUrl) => {
-    worker.current?.postMessage({blobUrl});
-    setErrorMessage(null);
-  });
-
   const worker = useRef<Worker|null>(null);
+
+  const uploadFile = useCallback((evt: ChangeEvent<HTMLInputElement>) => (
+    handleFileUpload((blobUrl) => {
+      worker.current?.postMessage({blobUrl});
+      setErrorMessage(null);
+    })(evt)
+  ), []);
   useEffect(() => {
     if (!worker.current) {
       // Create the worker if it does not yet exist.
@@ -76,7 +78,7 @@ export default function HomePage() {
       worker.current?.removeEventListener('message', onMessageReceived);
       worker.current?.removeEventListener('error', onErrorReceived);
     };
-  }, []);
+  }, [setProcessedSubjectImage]);
 
   useEffect(() => {
     const onPaste = handleImagePaste((dataTransfer) => {
@@ -95,11 +97,6 @@ export default function HomePage() {
       window.removeEventListener('paste', onPaste);
     };
   }, [fileInputRef]);
-
-  useEffect(() => {
-    if(!processedSubjectImage) return;
-    generateImages();
-  }, [processedSubjectImage, selectedColor, selectedBackgroundImage]);
 
   const generateImages = debounce(async () => {
     if(!processedSubjectImage) return;
@@ -126,6 +123,12 @@ export default function HomePage() {
     setIsProcessing(false);
     console.timeEnd('generateImages');
   });
+
+  useEffect(() => {
+    if(!processedSubjectImage) return;
+    generateImages();
+  }, [processedSubjectImage, selectedColor, selectedBackgroundImage, generateImages]);
+
 
   const loadExampleImage = (evt: MouseEvent<HTMLImageElement>) => {
     if(!evt.currentTarget.src.startsWith('data:image')) throw new Error('example image must use image base64 as src');
@@ -180,7 +183,7 @@ export default function HomePage() {
               </Link>
               {generatedVariations.map((generatedImage) => (
                 <div className='w-40 h-40 md:w-48 md:h-48 aspect-square relative group font-bold' key={generatedImage.templateId}>
-                  <img className='w-full h-full' src={generatedImage.imageDataUrl} />
+                  <img className='w-full h-full' src={generatedImage.imageDataUrl} alt='processed output image' />
                   <div className='flex flex-row justify-center gap-1.5 mt-1 md:absolute md:left-0 md:right-0 md:bottom-2 md:opacity-0 group-hover:opacity-100 transition duration-200'>
                     <Link
                       href={`/editor?template=${generatedImage.templateId}&brandColor=${encodeURIComponent(selectedColor)}`}

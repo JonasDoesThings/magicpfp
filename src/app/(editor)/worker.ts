@@ -18,7 +18,9 @@ class ModelProcessorSingleton {
       try {
         const gpuAdapter = doesSupportWebGPU ? (await navigator.gpu.requestAdapter()) : null;
         if(gpuAdapter?.features.has('shader-f16')) doesSupportFP16 = true;
-      } catch (e) {}
+      } catch (e) {
+        console.debug('evaluating if device supports WebGPU & FP16', e);
+      }
 
       // I can't really pinpoint the issue, but on mobile the device must be `wasm` for the image processing to work-out,
       // else the output is bugged-out with transparency and artifacts.

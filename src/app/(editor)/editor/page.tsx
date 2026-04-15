@@ -1,7 +1,7 @@
 'use client';
 import {Input, PercentageInput} from '~/components/ui/input';
 import {Label} from '~/components/ui/label';
-import {useContext, useEffect, useRef, useState} from 'react';
+import {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {type EditorState, type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
 import {
   defaultGenerationSettings,
@@ -20,7 +20,7 @@ import {
   Award,
   ChevronLeft,
   Frame,
-  Image,
+  ImageIcon,
   Loader2,
   PaintbrushVertical,
   ScanFace,
@@ -39,11 +39,11 @@ export default function EditorPage() {
   // TODO: sync with url state
   // const [urlFormState, setUrlFormState] = useQueryStates(pfpGenerationSettingsUrlParsingSchema, {history: 'replace'});
   const [editorState, setEditorState] = useState<EditorState>({state: 'INITIALIZING'});
-  const editorStateRef = useRef<typeof editorState|undefined>();
+  const editorStateRef = useRef<typeof editorState|undefined>(undefined);
   editorStateRef.current = editorState;
 
   const {processedSubjectImage, setProcessedSubjectImage, backgroundImage: passedBackgroundImage, setBackgroundImage: setPassedBackgroundImage} = useContext(ImagePassingContext);
-  const processedSubjectImageRef = useRef<typeof processedSubjectImage|undefined>();
+  const processedSubjectImageRef = useRef<typeof processedSubjectImage|undefined>(undefined);
   processedSubjectImageRef.current = processedSubjectImage;
 
   const [generatedImageDataUrl, setGeneratedImageDataUrl] = useState<string|null>(null);
@@ -74,7 +74,7 @@ export default function EditorPage() {
   });
 
 
-  const generationSettingsFormRef = useRef<typeof generationSettingsForm|undefined>();
+  const generationSettingsFormRef = useRef<typeof generationSettingsForm|null>(null);
   generationSettingsFormRef.current = generationSettingsForm;
   const isBorderEnabled = watchForm('border');
   const isBadgeEnabled = watchForm('badgeEnabled');
@@ -85,7 +85,7 @@ export default function EditorPage() {
     worker.current?.postMessage({blobUrl});
   });
 
-  const generateImage = async (generationSettings: PFPGenerationSettings, processedSubjectImageToUse?: Blob) => {
+  const generateImage = useCallback(async (generationSettings: PFPGenerationSettings, processedSubjectImageToUse?: Blob) => {
     if(!processedSubjectImageToUse) {
       processedSubjectImageToUse = processedSubjectImage;
     }
@@ -100,7 +100,7 @@ export default function EditorPage() {
     subjectImageBitmap = await createImageBitmap(processedSubjectImageToUse);
     setGeneratedImageDataUrl(await generateOutputImage(subjectImageBitmap, generationSettings));
     console.timeEnd('generating output');
-  };
+  }, [processedSubjectImage]);
 
   useEffect(() => {
     if(typeof window === 'undefined') {
@@ -132,7 +132,6 @@ export default function EditorPage() {
           continue;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         generationSettingsForm.setValue(key as keyof PFPGenerationSettings, val);
       }
     }
@@ -233,7 +232,7 @@ export default function EditorPage() {
       debouncedRegenerateForm(formData as PFPGenerationSettings);
     });
     return () => unsubscribe();
-  }, [watchForm]);
+  }, [watchForm, generateImage]);
 
   if(editorState.state === 'INITIALIZING') {
     return (
@@ -779,7 +778,7 @@ export default function EditorPage() {
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value='output'>
-                  <AccordionTrigger><span className='flex flex-row items-center gap-2 font-bold'><Image className='stroke-accent' size={24} /> Output</span></AccordionTrigger>
+                  <AccordionTrigger><span className='flex flex-row items-center gap-2 font-bold'><ImageIcon className='stroke-accent' size={24} /> Output</span></AccordionTrigger>
                   <AccordionContent className='space-y-2'>
                     <div className='md:grid md:grid-cols-2 gap-2 w-full'>
                       <FormField

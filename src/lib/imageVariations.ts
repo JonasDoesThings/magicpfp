@@ -287,7 +287,7 @@ async function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, gene
       generationSettings.outputSize / 2,
       generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale / 2 * (2 * generationSettings.backgroundVerticalPosition - 1)),
       generationSettings.outputSize * generationSettings.backgroundScale / 2,
-      0, Math.PI * 2
+      0, Math.PI * 2,
     );
   } else if (generationSettings.backgroundShape === 'ROUNDEDRECT') {
     ctx.roundRect(
@@ -322,7 +322,7 @@ function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSettings: 
       (generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale)) / 2 + (generationSettings.borderThickness/2),
       generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale * generationSettings.backgroundVerticalPosition) + (generationSettings.borderThickness/2),
       (generationSettings.outputSize * generationSettings.backgroundScale) - (generationSettings.borderThickness),
-      (generationSettings.outputSize * generationSettings.backgroundScale) - (generationSettings.borderThickness)
+      (generationSettings.outputSize * generationSettings.backgroundScale) - (generationSettings.borderThickness),
     );
     break;
   }
@@ -331,7 +331,7 @@ function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSettings: 
       generationSettings.outputSize / 2,
       generationSettings.outputSize - (generationSettings.outputSize * generationSettings.backgroundScale / 2 * (2 * generationSettings.backgroundVerticalPosition - 1)),
       generationSettings.outputSize * generationSettings.backgroundScale / 2 - (generationSettings.borderThickness / 2),
-      0, Math.PI * 2
+      0, Math.PI * 2,
     );
     break;
   }
@@ -390,7 +390,7 @@ function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRende
     0,
     0,
     newWidth,
-    newHeight
+    newHeight,
   );
 
   // Restore the canvas state to undo the translation and rotation
@@ -419,7 +419,7 @@ async function finishCanvas(canvas: OffscreenCanvas, generationSettings: PFPGene
         0,
         generationSettings.outputSize,
         generationSettings.outputSize,
-        generationSettings.backgroundRoundedRectBorderRadius * (generationSettings.outputSize/2)
+        generationSettings.backgroundRoundedRectBorderRadius * (generationSettings.outputSize/2),
       );
       ctx.closePath();
       ctx.fill();

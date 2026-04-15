@@ -28,7 +28,7 @@ export function BackgroundPickerDialog({preselectedBackgroundColor, preselectedB
   useEffect(() => {
     if(!liveUpdateOnChange) return;
     onChange?.(backgroundColor, backgroundImage);
-  }, [backgroundColor, backgroundImage, liveUpdateOnChange]);
+  }, [backgroundColor, backgroundImage, liveUpdateOnChange, onChange]);
 
   return (
     <Dialog>

@@ -1,16 +1,14 @@
 'use client';
+ 
+import {useSyncExternalStore} from 'react';
 
-import {useEffect, useState} from 'react';
+const emptySubscribe = () => () => {};
 
 /**
  * component that waits for client-mounting to prevent hydration issues
  */
 export function WebGPUSupportInfo() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   if(!mounted) return null;
   if (typeof window === 'undefined') return null;

@@ -19,7 +19,9 @@ export default function ImageFlipper() {
   const [inputImageDataUrl, setInputImageDataUrl] = useState<string|undefined>();
   const [flipDirections, setFlipDirections] = useState<[boolean, boolean]>([true, false]);
 
-  const flipImage = (blobUrl: string) => {
+  useEffect(() => {
+    if (typeof inputImageDataUrl !== 'string') return;
+
     const img = new window.Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
@@ -39,23 +41,18 @@ export default function ImageFlipper() {
         flipDirections[0] ? -img.width : 0,
         flipDirections[1] ? -img.height : 0,
         img.width,
-        img.height
+        img.height,
       );
       ctx.restore();
+      setErrorMessage(null);
       setProcessedImageDataUrl(canvas.toDataURL());
     };
     img.onerror = (err) => {
       setErrorMessage('An Error Occurred. Please Try Again!');
       console.error(err);
     };
-    img.src = blobUrl;
-
-    setErrorMessage(null);
-  };
-  useEffect(() => {
-    if(typeof inputImageDataUrl !== 'string') return;
-    flipImage(inputImageDataUrl);
-  }, [inputImageDataUrl, flipImage, flipDirections]);
+    img.src = inputImageDataUrl;
+  }, [inputImageDataUrl, flipDirections]);
 
   const uploadFile = handleFileUpload((dataUrl) => setInputImageDataUrl(dataUrl));
 
@@ -135,7 +132,7 @@ export default function ImageFlipper() {
           ) : null}
           {processedImageDataUrl ? (
             <div>
-              <img className='w-auto h-full max-h-[28rem]' src={processedImageDataUrl} />
+              <img className='w-auto h-full max-h-[28rem]' alt='flipped image output' src={processedImageDataUrl} />
               <div className='flex flex-row justify-center gap-1.5 mt-6'>
                 <Button size='default' onClick={downloadFileOnClick(processedImageDataUrl)}>
                   <Download size={20} />

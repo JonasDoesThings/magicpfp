@@ -7,8 +7,8 @@ export const ImagePassingContext = createContext<{
     }>({
       processedSubjectImage: undefined,
       backgroundImage: undefined,
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       setProcessedSubjectImage: (value?: Blob) => {},
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       setBackgroundImage: (value?: string) => {},
     });

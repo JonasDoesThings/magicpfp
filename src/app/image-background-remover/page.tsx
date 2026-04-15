@@ -1,5 +1,5 @@
 'use client';
-import {type MouseEvent, useEffect, useRef, useState} from 'react';
+import {type ChangeEvent, type MouseEvent, useCallback, useEffect, useRef, useState} from 'react';
 import {type RemoveImgBackgroundWorkerResponse} from '~/lib/ApplicationState';
 import {Input} from '~/components/ui/input';
 import {Label} from '~/components/ui/label';
@@ -17,12 +17,14 @@ export default function ImageBackgroundRemoverPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedSubjectImageDataUrl, setProcessedSubjectImageDataUrl] = useState<string|undefined>();
 
-  const uploadFile = handleFileUpload((blobUrl) => {
-    worker.current?.postMessage({blobUrl});
-    setErrorMessage(null);
-  });
-
   const worker = useRef<Worker|null>(null);
+
+  const uploadFile = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
+    handleFileUpload((blobUrl) => {
+      worker.current?.postMessage({blobUrl});
+      setErrorMessage(null);
+    })(evt);
+  }, []);
   useEffect(() => {
     if (!worker.current) {
       // Create the worker if it does not yet exist.
@@ -142,7 +144,7 @@ export default function ImageBackgroundRemoverPage() {
             </div>
           ) : processedSubjectImageDataUrl ? (
             <div>
-              <img className='w-auto h-full max-h-[28rem]' src={processedSubjectImageDataUrl} />
+              <img className='w-auto h-full max-h-[28rem]' src={processedSubjectImageDataUrl} alt='Processed image with background removed' />
               <div className='flex flex-row justify-center gap-1.5 mt-6'>
                 <Button size='default' onClick={downloadFileOnClick(processedSubjectImageDataUrl)}>
                   <Download size={20} />
