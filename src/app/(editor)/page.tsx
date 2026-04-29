@@ -141,7 +141,8 @@ export default function HomePage() {
       <main className='min-h-screen flex flex-col py-8 px-6 md:px-12 items-center justify-center gap-8'>
         <div>
           <div className='bg-accent text-accent-foreground px-6 md:px-3 py-2.5 w-full md:max-w-5xl rounded-md'>
-            <Link href='/'><p className='font-bold text-2xl text-center mb-2'><ScanFace className='inline' size={30} strokeWidth={3} /> magicpfp.com</p></Link>
+            <Link href='/'><p className='font-bold text-2xl text-center mb-1'><ScanFace className='inline' size={30} strokeWidth={3} /> magicpfp.giga.tools</p></Link>
+            <p className='text-center mb-2'>Part of <Link href='https://giga.tools' className='font-bold underline'>giga.tools</Link></p>
             <div className='flex flex-row flex-wrap justify-center gap-5'>
               <Label className='flex flex-row items-center gap-1.5'>
                 <span>Picture</span>
@@ -223,7 +224,7 @@ export default function HomePage() {
           <p className='text-sm'>
           made by <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>github</a><br />
           powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
-          report an issue <a className='underline' href='mailto:contact@magicpfp.com' target='_blank'>via mail</a> or <a className='underline' href='https://github.com/JonasDoesThings/magicpfp/issues' target='_blank'>on github</a>
+          report an issue <a className='underline' href='mailto:contact@giga.tools' target='_blank'>via mail</a> or <a className='underline' href='https://github.com/JonasDoesThings/magicpfp/issues' target='_blank'>on github</a>
           </p>
           <a className='buy-me-a-coffee-button mt-2' href='https://www.buymeacoffee.com/jonasdoesthings' target='_blank' rel='nofollow' title='Support my Work'>
             <span className='mr-2'>🍵</span>Buy Me A Coffee

@@ -244,7 +244,7 @@ export default function EditorPage() {
         <p className='absolute bottom-2 text-xs'>
           made by <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>github</a><br />
           powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
-          report an issue <a className='underline' href='mailto:contact@magicpfp.com' target='_blank'>via mail</a> or <a className='underline' href='https://github.com/JonasDoesThings/magicpfp/issues' target='_blank'>on github</a>
+          report an issue <a className='underline' href='mailto:contact@giga.tools' target='_blank'>via mail</a> or <a className='underline' href='https://github.com/JonasDoesThings/magicpfp/issues' target='_blank'>on github</a>
         </p>
       </main>
     );
@@ -254,17 +254,20 @@ export default function EditorPage() {
     <>
       <main className='flex flex-col md:flex-row p-8 gap-8 items-center justify-center'>
         <div className='w-full max-w-md flex flex-col gap-1.5'>
-          <div className='flex flex-row justify-between bg-accent text-accent-foreground px-6 md:px-3 py-2.5 rounded-md'>
-            <Link href='/' className='flex text-sm flex-row items-center gap-1 hover:text-neutral-100 duration-200 group'>
-              <ChevronLeft size={16} strokeWidth={3} className='inline-block group-hover:animate-wiggle duration-200' />
-              <span>Back to Frontpage</span>
-            </Link>
-            <Link href='/' className='flex text-lg font-bold flex-row items-center gap-1 hover:text-neutral-100 duration-200 group'>
-              <h1>
-                magicpfp.com
-                <ScanFace className='inline ml-1 group-hover:animate-wiggle duration-200' size={26} strokeWidth={3} />
-              </h1>
-            </Link>
+          <div>
+            <div className='flex flex-row justify-between bg-accent text-accent-foreground px-6 md:px-3 py-2.5 rounded-md'>
+              <Link href='/' className='flex text-sm flex-row items-center gap-1 hover:text-neutral-100 duration-200 group'>
+                <ChevronLeft size={16} strokeWidth={3} className='inline-block group-hover:animate-wiggle duration-200' />
+                <span>Back to Frontpage</span>
+              </Link>
+              <Link href='/' className='flex text-lg font-bold flex-row items-center gap-1 hover:text-neutral-100 duration-200 group'>
+                <h1>
+                magicpfp.giga.tools
+                  <ScanFace className='inline ml-1 group-hover:animate-wiggle duration-200' size={26} strokeWidth={3} />
+                </h1>
+              </Link>
+            </div>
+            <p className='text-right mb-2'>part of <Link href='https://giga.tools' className='font-semibold underline' target='_blank'>giga.tools</Link></p>
           </div>
           <Form watch={watchForm} {...generationSettingsForm}>
             <form onSubmit={generationSettingsForm.handleSubmit((data) => generateImage(data))} className='space-y-1.5'>
@@ -858,7 +861,7 @@ export default function EditorPage() {
           <p className='text-sm'>
             made by <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>github</a><br />
             powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
-            report an issue <a className='underline' href='mailto:contact@magicpfp.com' target='_blank'>via mail</a> or <a className='underline' href='https://github.com/JonasDoesThings/magicpfp/issues' target='_blank'>on github</a>
+            report an issue <a className='underline' href='mailto:contact@giga.tools' target='_blank'>via mail</a> or <a className='underline' href='https://github.com/JonasDoesThings/magicpfp/issues' target='_blank'>on github</a>
           </p>
           <a className='buy-me-a-coffee-button mt-2' href='https://www.buymeacoffee.com/jonasdoesthings' target='_blank' rel='nofollow' title='Support my Work'>
             <span className='mr-2'>🍵</span>Buy Me A Coffee

@@ -107,7 +107,7 @@ export default function ImageBackgroundRemoverPage() {
               <ChevronLeft size={16} strokeWidth={3} className='inline-block group-hover:animate-wiggle duration-200' />
               <span>Back to Profile Pic Editor</span>
             </Link>
-            <Link href='#'><p className='font-bold text-3xl text-center mt-2'><ScanFace className='inline' size={34} strokeWidth={3} /> magicpfp.com</p></Link>
+            <Link href='#'><p className='font-bold text-3xl text-center mt-2'><ScanFace className='inline' size={34} strokeWidth={3} /> magicpfp.giga.tools</p></Link>
             <p className='text-center text-lg font-bold mb-2'>photo background remover</p>
             <div className='flex flex-row flex-wrap justify-center gap-5 mt-4'>
               <Label>
@@ -159,7 +159,7 @@ export default function ImageBackgroundRemoverPage() {
           <p className='text-sm'>
           made by <a className='underline' href='https://twitter.com/JonasDoesThings' target='_blank'>JonasDoesThings</a>, source code on <a className='underline' href='https://github.com/JonasDoesThings/magicpfp' target='_blank'>github</a><br />
           powered by <a className='underline' href='https://huggingface.co/briaai/RMBG-1.4/' target='_blank' rel='nofollow'>RMBG-1.4</a><br />
-          report an issue <a className='underline' href='mailto:contact@magicpfp.com' target='_blank'>via mail</a> or <a className='underline' href='https://github.com/JonasDoesThings/magicpfp/issues' target='_blank'>on github</a>
+          report an issue <a className='underline' href='mailto:contact@giga.tools' target='_blank'>via mail</a> or <a className='underline' href='https://github.com/JonasDoesThings/magicpfp/issues' target='_blank'>on github</a>
           </p>
           <a className='buy-me-a-coffee-button mt-2' href='https://www.buymeacoffee.com/jonasdoesthings' target='_blank' rel='nofollow' title='Support my Work'>
             <span className='mr-2'>🍵</span>Buy Me A Coffee

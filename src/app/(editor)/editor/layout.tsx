@@ -6,6 +6,6 @@ export default function EditorLayout({children}: PropsWithChildren) {
 }
 
 export const metadata: Metadata = {
-  title: 'AI-Powered Profile Picture Editor | magicpfp.com',
+  title: 'AI-Powered Profile Picture Editor | magicpfp.giga.tools',
   description: 'Create your next profile photo using our AI-powered profile pic studio. Remove photo background with AI and customize your avatar with our free no-signup editor',
 };

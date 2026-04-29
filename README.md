@@ -1,9 +1,9 @@
-# magicpfp.com
+# magicpfp.giga.tools
 ## About
-[magicpfp.com](https://magicpfp.com/) is a small webapp for generating and customizing headshot profile-pictures. 
+[magicpfp.giga.tools](https://magicpfp.giga.tools/) is a small webapp for generating and customizing headshot profile-pictures. 
 It uses a background-removal machine learning model ([briaai/RMBG-1.4](https://huggingface.co/briaai/RMBG-1.4)), that **runs directly in the browser**, utilizing WebGPU if available.
 
-The project features a [rich editor](https://magicpfp.com/editor) to customize profile pictures with addons like custom backgrounds, badges, image filters, and more.
+The project features a [rich editor](https://magicpfp.giga.tools/editor) to customize profile pictures with addons like custom backgrounds, badges, image filters, and more.
 
 <a href="https://www.buymeacoffee.com/JonasDoesThings" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
