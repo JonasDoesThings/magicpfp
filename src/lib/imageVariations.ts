@@ -79,15 +79,33 @@ function drawBadge(ctx: OffscreenCanvasRenderingContext2D, text: string, generat
   const centerY = canvas.height - radius - paddingY; // shift up slightly to fit the arc
   const lineWidth = generationSettings.badgeFontSize / 0.9;
 
-  ctx.font = `${generationSettings.badgeTextBold ? 'bold ': ' '}${generationSettings.badgeFontSize}px ${GeistSans.style.fontFamily}`; // Set font size based on arc thickness
+  let fontSize = generationSettings.badgeFontSize;
+  ctx.font = `${generationSettings.badgeTextBold ? 'bold ': ' '}${fontSize}px ${GeistSans.style.fontFamily}`; // Set font size based on arc thickness
 
-  let totalTextWidth = 0;
-  for (const char of text) {
-    totalTextWidth += ctx.measureText(char).width * generationSettings.badgeTextLetterSpacing;
-  }
+  const measureTotalTextWidth = () => {
+    let width = 0;
+    for (const char of text) {
+      width += ctx.measureText(char).width * generationSettings.badgeTextLetterSpacing;
+    }
+    return width;
+  };
 
   const angularPadding = 1.5;
-  const totalAngularWidth = (totalTextWidth / radius) * angularPadding;
+  // The arc wraps around the bottom-left corner of the canvas; anything wider than this would
+  // start overlapping itself and make the gradient's color-stop offsets go out of order.
+  const maxAngularWidth = Math.PI * 1.2;
+
+  let totalTextWidth = measureTotalTextWidth();
+  let totalAngularWidth = (totalTextWidth / radius) * angularPadding;
+
+  if (totalAngularWidth > maxAngularWidth) {
+    // Text is too long to fit around the arc at the configured size - shrink the font
+    // proportionally so it fits, instead of letting the angle math overflow.
+    fontSize *= maxAngularWidth / totalAngularWidth;
+    ctx.font = `${generationSettings.badgeTextBold ? 'bold ': ' '}${fontSize}px ${GeistSans.style.fontFamily}`;
+    totalTextWidth = measureTotalTextWidth();
+    totalAngularWidth = Math.min((totalTextWidth / radius) * angularPadding, maxAngularWidth);
+  }
 
   const bottomLeftCenter = (2*Math.PI) - (Math.PI/180)*225;
   const startAngle = bottomLeftCenter - totalAngularWidth / 2;
