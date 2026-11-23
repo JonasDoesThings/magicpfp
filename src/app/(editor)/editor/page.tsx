@@ -30,6 +30,7 @@ import {debounce, downloadFileOnClick, handleFileUpload, handleImagePaste} from 
 import {editorTemplates} from '~/lib/editorTemplates';
 import {ImagePassingContext} from '~/components/ImagePassingContext';
 import {WebGPUSupportInfo} from '~/components/WebGPUSupportInfo';
+import {CanvasFilterSupportInfo} from '~/components/CanvasFilterSupportInfo';
 import {HRWithText} from '~/components/HRWithText';
 import Link from 'next/link';
 import {BackgroundPickerDialog} from '~/components/BackgroundPickerDialog';
@@ -368,6 +369,7 @@ export default function EditorPage() {
                       />
                     </div>
                     <HRWithText className='font-bold my-1'>Image Filters</HRWithText>
+                    <CanvasFilterSupportInfo />
                     <div className='md:grid md:grid-cols-2 gap-2 w-full'>
                       <FormField
                         control={generationSettingsForm.control}
