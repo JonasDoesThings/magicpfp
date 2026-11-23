@@ -1,0 +1,5 @@
+allowBuilds:
+  msw: false
+  onnxruntime-node: false
+  protobufjs: false
+  sharp: true
