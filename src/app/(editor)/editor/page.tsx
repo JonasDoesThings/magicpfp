@@ -77,6 +77,7 @@ export default function EditorPage() {
   const generationSettingsFormRef = useRef<typeof generationSettingsForm|null>(null);
   generationSettingsFormRef.current = generationSettingsForm;
   const isBorderEnabled = watchForm('border');
+  const borderTarget = watchForm('borderTarget');
   const isBadgeEnabled = watchForm('badgeEnabled');
   const backgroundShape = watchForm('backgroundShape');
 
@@ -591,21 +592,21 @@ export default function EditorPage() {
                       <>
                         <FormField
                           control={generationSettingsForm.control}
-                          name='borderLayer'
+                          name='borderTarget'
                           render={({field}) => (
                             <FormItem>
                               <FormLabel>
-                              Border Layer
+                              Border Target
                               </FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value='FOREGROUND'>Over Subject</SelectItem>
-                                  <SelectItem value='BACKGROUND'>Behind Subject</SelectItem>
+                                  <SelectItem value='BACKGROUND'>Background Shape</SelectItem>
+                                  <SelectItem value='SUBJECT'>Subject</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormDescription />
@@ -613,6 +614,32 @@ export default function EditorPage() {
                             </FormItem>
                           )}
                         />
+                        {borderTarget === 'BACKGROUND' ? (
+                          <FormField
+                            control={generationSettingsForm.control}
+                            name='borderLayer'
+                            render={({field}) => (
+                              <FormItem>
+                                <FormLabel>
+                                Border Layer
+                                </FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value='FOREGROUND'>Over Subject</SelectItem>
+                                    <SelectItem value='BACKGROUND'>Behind Subject</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormDescription />
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        ) : null}
                         <div className='md:grid md:grid-cols-2 gap-2 w-full'>
                           <FormField
                             control={generationSettingsForm.control}

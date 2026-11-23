@@ -14,6 +14,7 @@ export const pfpGenerationSettingsSchema = z.object({
   subjectRotation: z.coerce.number().min(-360).max(360).default(0),
   subjectScale: z.coerce.number().min(0).max(1.5),
   border: z.boolean(),
+  borderTarget: z.enum(['BACKGROUND', 'SUBJECT']),
   borderLayer: z.enum(['BACKGROUND', 'FOREGROUND']),
   borderColor: z.string(),
   borderThickness: z.coerce.number().min(0).max(128),
@@ -42,6 +43,19 @@ export async function generateOutputImage(subject: ImageBitmap, generationSettin
     fillStyle: cssGradientToCanvasGradient(ctx, generationSettings.brandColor),
   });
 
+  const drawSubjectOutline = generationSettings.border
+    && generationSettings.borderTarget === 'SUBJECT'
+    && generationSettings.borderThickness > 0;
+
+  if(drawSubjectOutline) {
+    ctx.save();
+    if(generationSettings.subjectShadow) {
+      ctx.filter = 'drop-shadow(-10px 10px 15px rgba(0, 0, 0, 45%))';
+    }
+    drawSubjectBorder(ctx, subject, generationSettings);
+    ctx.restore();
+  }
+
   ctx.save();
   const filters: string[] = [''];
   if(generationSettings.subjectBrightness !== 100) {
@@ -53,7 +67,7 @@ export async function generateOutputImage(subject: ImageBitmap, generationSettin
   if(generationSettings.subjectContrast !== 100) {
     filters.push(`contrast(${generationSettings.subjectContrast}%)`);
   }
-  if(generationSettings.subjectShadow) {
+  if(generationSettings.subjectShadow && !drawSubjectOutline) {
     filters.push('drop-shadow(-10px 10px 15px rgba(0, 0, 0, 45%))');
   }
 
@@ -175,6 +189,7 @@ export const defaultGenerationSettings: PFPGenerationSettings = {
   subjectTopMargin: 0,
   subjectLeftMargin: 0,
   border: false,
+  borderTarget: 'BACKGROUND',
   borderLayer: 'BACKGROUND',
   borderColor: 'black',
   borderThickness: 33,
@@ -294,7 +309,7 @@ async function drawCanvasBackground(ctx: OffscreenCanvasRenderingContext2D, gene
     ctx.drawImage(bgImage, 0, 0, generationSettings.outputSize, generationSettings.outputSize);
   }
 
-  if(generationSettings.border && generationSettings.borderLayer === 'BACKGROUND') {
+  if(generationSettings.border && generationSettings.borderTarget === 'BACKGROUND' && generationSettings.borderLayer === 'BACKGROUND') {
     drawBorder(ctx, generationSettings);
   }
 
@@ -372,6 +387,138 @@ function drawBorder(ctx: OffscreenCanvasRenderingContext2D, generationSettings: 
   ctx.stroke();
 }
 
+const SUBJECT_BORDER_ALPHA_THRESHOLD = 128;
+
+// 1D squared Euclidean distance transform (Felzenszwalb & Huttenlocher).
+function edt1d(
+  f: Float64Array,
+  d: Float64Array,
+  v: Int32Array,
+  z: Float64Array,
+  n: number,
+) {
+  let k = -1;
+  for(let q = 0; q < n; q++) {
+    const fq = f[q]!;
+    if(!Number.isFinite(fq)) continue;
+
+    if(k === -1) {
+      k = 0;
+      v[0] = q;
+      z[0] = -Infinity;
+      z[1] = Infinity;
+      continue;
+    }
+
+    let s = ((fq + q * q) - (f[v[k]!]! + v[k]! * v[k]!)) / (2 * q - 2 * v[k]!);
+    while(k > 0 && s <= z[k]!) {
+      k--;
+      s = ((fq + q * q) - (f[v[k]!]! + v[k]! * v[k]!)) / (2 * q - 2 * v[k]!);
+    }
+    k++;
+    v[k] = q;
+    z[k] = s;
+    z[k + 1] = Infinity;
+  }
+
+  if(k === -1) {
+    d.fill(Infinity);
+    return;
+  }
+
+  let j = 0;
+  for(let p = 0; p < n; p++) {
+    while(z[j + 1]! < p) j++;
+    const dx = p - v[j]!;
+    d[p] = dx * dx + f[v[j]!]!;
+  }
+}
+
+function drawSubjectBorder(
+  ctx: OffscreenCanvasRenderingContext2D,
+  subject: ImageBitmap,
+  generationSettings: PFPGenerationSettings,
+) {
+  const size = generationSettings.outputSize;
+  const radius = generationSettings.borderThickness;
+  if(radius <= 0) return;
+
+  const borderCanvas = new OffscreenCanvas(size, size);
+  const borderCtx = borderCanvas.getContext('2d', {willReadFrequently: true});
+  if(!borderCtx) return;
+
+  drawImageToCanvasRespectingRatio(
+    borderCtx,
+    subject,
+    generationSettings.subjectScale,
+    generationSettings.subjectTopMargin,
+    generationSettings.subjectLeftMargin,
+    generationSettings.subjectRotation,
+  );
+
+  const imageData = borderCtx.getImageData(0, 0, size, size);
+  const data = imageData.data;
+
+  const inner = Math.max(0, radius - 0.5);
+  const outer = radius + 0.5;
+  const innerSq = inner * inner;
+  const outerSq = outer * outer;
+  const maxDist = Math.ceil(outer) + 1;
+
+  // Pass 1: exact vertical distance via two-pass linear scan on the binary alpha mask.
+  const colDist = new Float32Array(size * size);
+  for(let x = 0; x < size; x++) {
+    let dist = maxDist;
+    for(let y = 0; y < size; y++) {
+      dist = data[(y * size + x) * 4 + 3]! >= SUBJECT_BORDER_ALPHA_THRESHOLD ? 0 : dist + 1;
+      colDist[y * size + x] = dist;
+    }
+    dist = maxDist;
+    for(let y = size - 1; y >= 0; y--) {
+      const idx = y * size + x;
+      const cur = colDist[idx]!;
+      dist = cur === 0 ? 0 : dist + 1;
+      const minD = dist < cur ? dist : cur;
+      colDist[idx] = minD > outer ? Infinity : minD * minD;
+    }
+  }
+
+  // Pass 2: horizontal 1D EDT to obtain exact 2D squared Euclidean distances.
+  const f = new Float64Array(size);
+  const d = new Float64Array(size);
+  const v = new Int32Array(size);
+  const z = new Float64Array(size + 1);
+
+  for(let y = 0; y < size; y++) {
+    const rowOffset = y * size;
+    for(let x = 0; x < size; x++) {
+      f[x] = colDist[rowOffset + x]!;
+    }
+    edt1d(f, d, v, z, size);
+    for(let x = 0; x < size; x++) {
+      const distSq = d[x]!;
+      let alpha = 0;
+      if(distSq <= innerSq) {
+        alpha = 255;
+      } else if(distSq < outerSq) {
+        alpha = Math.round((outer - Math.sqrt(distSq)) * 255);
+      }
+      const idx = (rowOffset + x) * 4;
+      data[idx] = 0;
+      data[idx + 1] = 0;
+      data[idx + 2] = 0;
+      data[idx + 3] = alpha;
+    }
+  }
+
+  borderCtx.putImageData(imageData, 0, 0);
+  borderCtx.globalCompositeOperation = 'source-in';
+  borderCtx.fillStyle = generationSettings.borderColor;
+  borderCtx.fillRect(0, 0, size, size);
+
+  ctx.drawImage(borderCanvas, 0, 0);
+}
+
 function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRenderingContext2D, subjectToPaint: ImageBitmap, subjectScale: number, subjectTopMargin: number, subjectLeftMargin: number, rotationDegrees: number) {
   const {width, height} = subjectToPaint;
 
@@ -418,7 +565,7 @@ function drawImageToCanvasRespectingRatio(drawingTargetCtx: OffscreenCanvasRende
 async function finishCanvas(canvas: OffscreenCanvas, generationSettings: PFPGenerationSettings) {
   const ctx = canvas.getContext('2d')!;
 
-  if(generationSettings.border && generationSettings.borderLayer === 'FOREGROUND') {
+  if(generationSettings.border && generationSettings.borderTarget === 'BACKGROUND' && generationSettings.borderLayer === 'FOREGROUND') {
     drawBorder(ctx, generationSettings);
   }
 
